@@ -7,13 +7,15 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="myAppl" />
+        <module name="toarsh-creator" />
+        <module name="KBSProject" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="myAppl" options="-parameters" />
+      <module name="KBSProject" options="-parameters" />
+      <module name="toarsh-creator" options="-parameters" />
     </option>
   </component>
 </project>

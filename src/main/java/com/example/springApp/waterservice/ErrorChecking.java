@@ -26,7 +26,7 @@ public class ErrorChecking {
 
                 });
     }
-    public void
+
 
     public void printMessage(String number, String message) {
         System.out.println("Счетчик с номером " + number + " - " + message);
