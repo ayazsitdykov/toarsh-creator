@@ -1,13 +1,28 @@
 package com.example.springApp;
 
-import org.springframework.boot.SpringApplication;
+import com.example.springApp.model.IPUModel;
+import com.example.springApp.model.Key;
+import com.example.springApp.waterservice.ErrorChecking;
+import com.example.springApp.waterservice.ExelParser;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+import java.util.HashMap;
 
 @SpringBootApplication
 public class SpringAppl {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringAppl.class, args);
+        //SpringApplication.run(SpringAppl.class, args);
+        ExelParser parser = new ExelParser();
+        HashMap<Key, IPUModel> waterMeterList = parser.parse("file.xlsx");
+
+        ErrorChecking ec = new ErrorChecking(waterMeterList);
+
+
+
+
+
+
 
     }
 }
