@@ -16,8 +16,15 @@ public class IPUModel {
     private LocalDate validDate;
     private String metrologist;
 
+    private String temperature;
+    private String pressure;
+    private String humidity;
+    private String other;
+
     private boolean isHot;
     private String address;
+
+
 
     @Override
     public String toString() {

@@ -14,6 +14,7 @@ public class ErrorChecking {
         this.waterMeterList = waterMeterList;
         this.dateChecking();
     }
+    public static boolean hasError;
 
     public void dateChecking() {
         waterMeterList.entrySet().
@@ -21,10 +22,15 @@ public class ErrorChecking {
                 {
                     if ((map.getValue().getVrfDate().getDayOfMonth() - map.getValue().getValidDate().getDayOfMonth()) != 1) {
                         printMessage(map.getValue().getManufactureNum(), "Неверные даты");
+                        hasError = true;
 
                     }
 
                 });
+    }
+
+    public void MPIChecking() {
+
     }
 
 

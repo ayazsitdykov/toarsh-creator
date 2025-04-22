@@ -8,17 +8,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Iterator;
 
 public class ExelParser {
 
-
     public HashMap<Key, IPUModel> parse(String file) {
         HashMap<Key, IPUModel> waterMeterList = new HashMap<>();
-        String result = "";
         InputStream inputStream;
         XSSFWorkbook workBook = null;
         try {
@@ -47,8 +44,6 @@ public class ExelParser {
                     case 5 -> waterMeter.setHot(cell.getStringCellValue().equals("ГВС"));
                     case 6 -> waterMeter.setAddress(cell.getStringCellValue());
                 }
-
-
 
 
             }
