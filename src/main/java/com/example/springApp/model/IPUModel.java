@@ -25,17 +25,23 @@ public class IPUModel {
     private String address;
 
 
-
     @Override
     public String toString() {
-        return " mitypeNumber='" + mitypeNumber + '\'' +
+        return "IPUModel{" +
+                "mitypeNumber='" + mitypeNumber + '\'' +
                 ", manufactureNum='" + manufactureNum + '\'' +
                 ", modification='" + modification + '\'' +
                 ", vrfDate=" + vrfDate +
                 ", validDate=" + validDate +
                 ", metrologist='" + metrologist + '\'' +
+                ", temperature='" + temperature + '\'' +
+                ", pressure='" + pressure + '\'' +
+                ", humidity='" + humidity + '\'' +
+                ", other='" + other + '\'' +
                 ", isHot=" + isHot +
-                ", address='" + address ;
+                ", address='" + address + '\'' +
+                '}';
     }
 }
+
 

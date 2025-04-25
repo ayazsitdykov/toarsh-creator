@@ -2,35 +2,42 @@ package com.example.springApp.waterservice;
 
 import com.example.springApp.model.IPUModel;
 import com.example.springApp.model.Key;
-import lombok.AllArgsConstructor;
+import com.example.springApp.model.MpiJsonParser;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 
 
 public class ErrorChecking {
     HashMap<Key, IPUModel> waterMeterList;
+    HashMap<String, HashMap<String, Integer>> regFifList;
+    public boolean hasError = false;
 
-    public ErrorChecking(HashMap<Key, IPUModel> waterMeterList) {
+    public ErrorChecking(HashMap<Key, IPUModel> waterMeterList, HashMap<String, HashMap<String, Integer>> regFifList) {
+        this.regFifList = regFifList;
         this.waterMeterList = waterMeterList;
-        this.dateChecking();
-    }
-    public static boolean hasError;
-
-    public void dateChecking() {
-        waterMeterList.entrySet().
-                forEach(map ->
-                {
-                    if ((map.getValue().getVrfDate().getDayOfMonth() - map.getValue().getValidDate().getDayOfMonth()) != 1) {
-                        printMessage(map.getValue().getManufactureNum(), "Неверные даты");
-                        hasError = true;
-
-                    }
-
-                });
+        this.errorChecking();
     }
 
-    public void MPIChecking() {
 
+    public void errorChecking() {
+        waterMeterList.forEach((key, value) -> {
+            int mpi=0;
+            try {
+                mpi = regFifList.get(value.getMitypeNumber()).get(value.isHot() ? "ГВС" : "ХВС");
+            } catch (Exception ex) {
+                printMessage(value.getManufactureNum(), "Рег номер - " + value.getMitypeNumber() +  "- не найден в базе");
+            }
+
+            if (!(value.getVrfDate().plusYears(mpi).minusDays(1).equals(value.getValidDate()))) {
+
+
+                printMessage(value.getManufactureNum(), "Несоответствие дат МПИ");
+                hasError = true;
+
+            }
+
+        });
     }
 
 
