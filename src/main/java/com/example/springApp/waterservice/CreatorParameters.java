@@ -32,10 +32,11 @@ public class CreatorParameters {
 
 
             double other;
+            double halfStep = (double) new Random().nextInt(0, 2) * 0.5;
             if (ipuModel.isHot()) {
-                other = new Random().nextInt(40, 65) + (double) new Random().nextInt(0, 2) * 0.5;
+                other = new Random().nextInt(40, 65) + halfStep;
             } else {
-                other = new Random().nextInt(10, 18) + (double) new Random().nextInt(0, 2) * 0.5;
+                other = new Random().nextInt(10, 18) + halfStep;
             }
             ipuModel.setOther("Температура раб. ср. " + other + " °С");
             ipuModel.setMetrologist("Ситдыков Р. Н.");
