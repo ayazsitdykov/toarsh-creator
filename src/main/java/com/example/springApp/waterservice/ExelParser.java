@@ -82,6 +82,11 @@ public class ExelParser {
         return firstColumnNameOrigin.equals(firstColumnName) & secondColumnNameOrigin.equals(secondColumnName);
     }
 
+    private String getAdres(String adres) {
+        //toDo Проверка адреса соответствию формата, возврат правильного адреса
+        return "";
+    }
+
 
 }
 
