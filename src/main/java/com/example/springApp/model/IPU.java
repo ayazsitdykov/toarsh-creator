@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
-public class IPUModel {
+public class IPU {
 
     private String mitypeNumber;
     private String manufactureNum;

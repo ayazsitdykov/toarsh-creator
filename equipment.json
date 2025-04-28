@@ -1,0 +1,62 @@
+[
+  {
+    "metrologist": "Невьянцев О. В.",
+    "numberUpsz": "40391.09.3Р.00123860",
+    "typeNumIntegral": "44154-16",
+    "manufactureNumIntegral": "414352",
+    "typeNumIva": "46434-11",
+    "manufactureNumIva": "17106",
+    "typeNumTl": "299-11",
+    "manufactureNumTl": "9"
+  },
+  {
+    "metrologist": "Клышников Е. А.",
+    "numberUpsz": "72850.18.3Р.00677222",
+    "typeNumIntegral": "44154-16",
+    "manufactureNumIntegral": "418645",
+    "typeNumIva": "46434-11",
+    "manufactureNumIva": "17107",
+    "typeNumTl": "299-11",
+    "manufactureNumTl": "23"
+  },
+  {
+    "metrologist": "Ситдыков Р. Н.",
+    "numberUpsz": "72850.18.3Р.00913997",
+    "typeNumIntegral": "44154-16",
+    "manufactureNumIntegral": "410537",
+    "typeNumIva": "46434-11",
+    "manufactureNumIva": "4e45",
+    "typeNumTl": "299-11",
+    "manufactureNumTl": "99"
+  },
+  {
+    "metrologist": "Ситдыков А. А.",
+    "numberUpsz": "72850.18.3Р.00361360",
+    "typeNumIntegral": "44154-20",
+    "manufactureNumIntegral": "432761",
+    "typeNumIva": "46434-11",
+    "manufactureNumIva": "21435",
+    "typeNumTl": "299-11",
+    "manufactureNumTl": "18"
+  },
+  {
+    "metrologist": "Калугин И. А.",
+    "numberUpsz": "72850.18.3Р.00361354",
+    "typeNumIntegral": "44154-20",
+    "manufactureNumIntegral": "432765",
+    "typeNumIva": "46434-11",
+    "manufactureNumIva": "21436",
+    "typeNumTl": "299-11",
+    "manufactureNumTl": "171"
+  },
+  {
+    "metrologist": "Десятов К. О.",
+    "numberUpsz": "40391.09.3Р.00425635",
+    "typeNumIntegral": "44154-20",
+    "manufactureNumIntegral": "432854",
+    "typeNumIva": "82393-21",
+    "manufactureNumIva": "22684",
+    "typeNumTl": "299-11",
+    "manufactureNumTl": "160"
+  }
+]

@@ -1,6 +1,6 @@
 package com.example.springApp.waterservice;
 
-import com.example.springApp.model.IPUModel;
+import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
 import lombok.Getter;
 
@@ -9,16 +9,16 @@ import java.util.Random;
 
 @Getter
 public class CreatorParameters {
-    HashMap<Key, IPUModel> waterMeterList;
+    HashMap<Key, IPU> waterMeterList;
 
-    public CreatorParameters(HashMap<Key, IPUModel> waterMeterList) {
+    public CreatorParameters(HashMap<Key, IPU> waterMeterList) {
         this.waterMeterList = waterMeterList;
         this.paramCreate();
 
     }
 
     private void paramCreate() {
-        for (IPUModel ipuModel : waterMeterList.values()) {
+        for (IPU ipuModel : waterMeterList.values()) {
 
 
             double temperature = new Random().nextInt(22, 26) + (double) new Random().nextInt(10) / 10;

@@ -1,19 +1,17 @@
 package com.example.springApp.waterservice;
 
-import com.example.springApp.model.IPUModel;
+import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
-import com.example.springApp.model.MpiJsonParser;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 
 
 public class ErrorChecking {
-    HashMap<Key, IPUModel> waterMeterList;
+    HashMap<Key, IPU> waterMeterList;
     HashMap<String, HashMap<String, Integer>> regFifList;
     public boolean hasError = false;
 
-    public ErrorChecking(HashMap<Key, IPUModel> waterMeterList, HashMap<String, HashMap<String, Integer>> regFifList) {
+    public ErrorChecking(HashMap<Key, IPU> waterMeterList, HashMap<String, HashMap<String, Integer>> regFifList) {
         this.regFifList = regFifList;
         this.waterMeterList = waterMeterList;
         this.errorChecking();

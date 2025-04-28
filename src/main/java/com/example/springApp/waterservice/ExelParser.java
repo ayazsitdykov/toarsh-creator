@@ -1,6 +1,6 @@
 package com.example.springApp.waterservice;
 
-import com.example.springApp.model.IPUModel;
+import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,8 +14,8 @@ import java.util.Iterator;
 
 public class ExelParser {
 
-    public HashMap<Key, IPUModel> parse(String file) {
-        HashMap<Key, IPUModel> waterMeterList = new HashMap<>();
+    public HashMap<Key, IPU> parse(String file) {
+        HashMap<Key, IPU> waterMeterList = new HashMap<>();
         InputStream inputStream;
         XSSFWorkbook workBook = null;
         try {
@@ -30,7 +30,7 @@ public class ExelParser {
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             Iterator<Cell> cells = row.iterator();
-            IPUModel waterMeter = new IPUModel();
+            IPU waterMeter = new IPU();
 
             while (cells.hasNext()) {
 
