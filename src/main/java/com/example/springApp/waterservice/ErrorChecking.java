@@ -4,6 +4,7 @@ import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
 
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class ErrorChecking {
@@ -11,9 +12,9 @@ public class ErrorChecking {
     HashMap<String, HashMap<String, Integer>> regFifList;
     public boolean hasError = false;
 
-    public ErrorChecking(HashMap<Key, IPU> waterMeterList, HashMap<String, HashMap<String, Integer>> regFifList) {
-        this.regFifList = regFifList;
-        this.waterMeterList = waterMeterList;
+    public ErrorChecking(Map<Key, IPU> waterMeterList, Object regFifList) {
+        this.regFifList = (HashMap<String, HashMap<String, Integer>>) regFifList;
+        this.waterMeterList = (HashMap<Key, IPU>) waterMeterList;
         this.errorChecking();
     }
 

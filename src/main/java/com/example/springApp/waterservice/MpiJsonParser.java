@@ -13,7 +13,7 @@ import java.util.Map;
 @Getter
 public class MpiJsonParser {
 
-    public HashMap<String, HashMap<String, Integer>> regFifList = new HashMap<>();
+    public Map<String, Object> regFifList = new HashMap<>();
     File file;
 
     public MpiJsonParser(String path) throws IOException {

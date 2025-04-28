@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 @SpringBootApplication
 public class SpringAppl {
@@ -21,7 +22,7 @@ public class SpringAppl {
 
         new CreatorParameters(waterMeterList);
 
-        HashMap<String, HashMap<String, Integer>> regFifList = new MpiJsonParser("RegFif.json").regFifList;
+        Map<String, Object> regFifList = new MpiJsonParser("RegFif.json").regFifList;
 
         ErrorChecking ec = new ErrorChecking(waterMeterList, regFifList);
 
