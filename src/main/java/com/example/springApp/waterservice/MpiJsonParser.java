@@ -30,19 +30,20 @@ public class MpiJsonParser {
 
         listM.forEach((key, value) -> {
             try {
-                HashMap<String, Integer> ob = (HashMap<String, Integer>) value;
-                regFifList.put(key, ob);
-            } catch (Exception e) {
-                try {
+
+                if (value instanceof Map<?, ?>) {
+                    HashMap<String, Integer> ob = (HashMap<String, Integer>) value;
+                    regFifList.put(key, ob);
+                } else if (value instanceof Integer) {
                     int v = (Integer) value;
                     LinkedHashMap<String, Integer> hm = new LinkedHashMap<>();
                     hm.put("ГВС", v);
                     hm.put("ХВС", v);
                     regFifList.put(key, hm);
-                } catch (Exception ex) {
-                    System.out.println("Ошибка файла JSON");
-
                 }
+
+            } catch (Exception e) {
+                System.out.println("Ошибка файла JSON");
 
             }
 

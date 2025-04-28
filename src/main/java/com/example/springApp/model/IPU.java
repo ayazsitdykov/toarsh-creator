@@ -25,9 +25,18 @@ public class IPU {
     private String address;
 
 
+    private String numberUpsz;
+    private String typeNumIntegral;
+    private String manufactureNumIntegral;
+    private String typeNumIva;
+    private String manufactureNumIva;
+    private String typeNumTl;
+    private String manufactureNumTl;
+
+
     @Override
     public String toString() {
-        return "IPUModel{" +
+        return "IPU{" +
                 "mitypeNumber='" + mitypeNumber + '\'' +
                 ", manufactureNum='" + manufactureNum + '\'' +
                 ", modification='" + modification + '\'' +
@@ -40,8 +49,16 @@ public class IPU {
                 ", other='" + other + '\'' +
                 ", isHot=" + isHot +
                 ", address='" + address + '\'' +
+                ", numberUpsz='" + numberUpsz + '\'' +
+                ", typeNumIntegral='" + typeNumIntegral + '\'' +
+                ", manufactureNumIntegral='" + manufactureNumIntegral + '\'' +
+                ", typeNumIva='" + typeNumIva + '\'' +
+                ", manufactureNumIva='" + manufactureNumIva + '\'' +
+                ", typeNumTl='" + typeNumTl + '\'' +
+                ", manufactureNumTl='" + manufactureNumTl + '\'' +
                 '}';
     }
 }
+
 
 

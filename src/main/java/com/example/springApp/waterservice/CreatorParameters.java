@@ -9,15 +9,9 @@ import java.util.Random;
 
 @Getter
 public class CreatorParameters {
-    HashMap<Key, IPU> waterMeterList;
 
-    public CreatorParameters(HashMap<Key, IPU> waterMeterList) {
-        this.waterMeterList = waterMeterList;
-        this.paramCreate();
 
-    }
-
-    private void paramCreate() {
+    public void paramCreate(HashMap<Key, IPU> waterMeterList) {
         for (IPU ipuModel : waterMeterList.values()) {
 
 
