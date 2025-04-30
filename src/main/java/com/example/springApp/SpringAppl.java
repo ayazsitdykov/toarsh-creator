@@ -20,12 +20,18 @@ public class SpringAppl {
 
         new CreatorParameters().paramCreate(waterMeterList);
 
-        Map<String, Object> regFifList = new MpiJsonParser("RegFif.json").regFifList;
+        Map<String, Object> regFifList = new MpiJsonParser("regFif.json").regFifList;
 
         ErrorChecking ec = new ErrorChecking(waterMeterList, regFifList);
         List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
         new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
-        System.out.println("srgs");
+
+        for (IPU ip : waterMeterList.values()) {
+            System.out.println(ip.getManufactureNum() + " " + ip.getMetrologist() + " " + ip.getOwner());
+
+
+        }
+
 
 
 

@@ -33,9 +33,9 @@ public class CreatorParameters {
                 other = new Random().nextInt(10, 18) + halfStep;
             }
             ipuModel.setOther("Температура раб. ср. " + other + " °С");
-            ipuModel.setMetrologist("Ситдыков Р. Н.");
+
         }
-        System.out.println(waterMeterList.entrySet());
+
     }
 
 

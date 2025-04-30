@@ -9,6 +9,9 @@ import java.time.LocalDate;
 @Getter
 public class IPU {
 
+    private final String signCipher = "ДЧЯ";
+    private final String docTitle = "Рекомендация.ГСИ.Счетчики воды.Методика поверки";
+
     private String mitypeNumber;
     private String manufactureNum;
     private String modification;
@@ -23,6 +26,7 @@ public class IPU {
 
     private boolean isHot;
     private String address;
+    private String owner;
 
 
     private String numberUpsz;
@@ -37,7 +41,9 @@ public class IPU {
     @Override
     public String toString() {
         return "IPU{" +
-                "mitypeNumber='" + mitypeNumber + '\'' +
+                "signCipher='" + signCipher + '\'' +
+                ", docTitle='" + docTitle + '\'' +
+                ", mitypeNumber='" + mitypeNumber + '\'' +
                 ", manufactureNum='" + manufactureNum + '\'' +
                 ", modification='" + modification + '\'' +
                 ", vrfDate=" + vrfDate +
@@ -49,6 +55,7 @@ public class IPU {
                 ", other='" + other + '\'' +
                 ", isHot=" + isHot +
                 ", address='" + address + '\'' +
+                ", owner='" + owner + '\'' +
                 ", numberUpsz='" + numberUpsz + '\'' +
                 ", typeNumIntegral='" + typeNumIntegral + '\'' +
                 ", manufactureNumIntegral='" + manufactureNumIntegral + '\'' +

@@ -7,16 +7,22 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+
 import java.io.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ExelParser {
+    String addressInMemory = "Ул. Ленина 92-124";//Если в файле отсутсвует адрес-устанавливаем это значение
+    String metrologyMemory = "Ситдыков Р. Н."; //Если в файле отсутсвует поверитель-устанавливаем это значение
 
     public HashMap<Key, IPU> parse(String filePath) {
         HashMap<Key, IPU> waterMeterList = new HashMap<>();
+
 
         try (InputStream inputStream = new FileInputStream(filePath);
              XSSFWorkbook workBook = new XSSFWorkbook(inputStream)) {
@@ -26,39 +32,52 @@ public class ExelParser {
 
                 if (row.getRowNum() == 0) {
                     if (isFileCorrect(row)) {
-                        continue;}
+                        continue;
+                    }
                     System.out.println("Выбран некорректный файл excel");
                     break;
 
                 }
 
-                Iterator<Cell> cells = row.iterator();
                 IPU waterMeter = new IPU();
 
 
-                while (cells.hasNext()) {
-
-                    Cell cell = cells.next();
-                    switch (cell.getColumnIndex()) {
-                        case 0 -> waterMeter.setMitypeNumber(getStringCell(cell));
-                        case 1 -> waterMeter.setManufactureNum(cell.getStringCellValue());
-                        case 2 -> waterMeter.setModification(cell.getStringCellValue());
-                        case 3 -> waterMeter.setVrfDate(getDateCell(cell));
-                        case 4 -> waterMeter.setValidDate(getDateCell(cell));
-                        case 5 -> waterMeter.setHot(cell.getStringCellValue().equals("ГВС"));
-                        case 6 -> waterMeter.setAddress(cell.getStringCellValue());
-                    }
+                waterMeter.setMitypeNumber(getStringCell(row.getCell(0)));
+                waterMeter.setManufactureNum(getStringCell(row.getCell(1)));
+                waterMeter.setModification(getStringCell(row.getCell(2)));
+                waterMeter.setVrfDate(getDateCell(row.getCell(3)));
+                waterMeter.setValidDate(getDateCell(row.getCell(4)));
+                waterMeter.setHot(getStringCell(row.getCell(5)).equals("ГВС"));
+                waterMeter.setAddress(getFormatAddress(row.getCell(6)));
+                waterMeter.setOwner(getOwner(row.getCell(8)));
+                waterMeter.setMetrologist(getMetrologist(row.getCell(9)));
 
 
-                }
                 waterMeterList.put(new Key(waterMeter.getManufactureNum(), waterMeter.getVrfDate()), waterMeter);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return waterMeterList;
+    }
 
+
+
+    private String getMetrologist(Cell cell) {
+        String metrologist = getStringCell(cell);
+        if (metrologist.equals("")) { //если ячейка пустая-возвращаем последнее значение записанное в metrologyMemory
+            return metrologyMemory;
+        }
+        metrologyMemory = metrologist; //записываем в память значение
+        return metrologist;
+    }
+
+    private String getOwner(Cell cell) {
+        String owner = getStringCell(cell);
+
+        return owner.equals("") ? "Физическое лицо" : owner; //если ячейка пустая, возвращаем "Физическое лицо"
     }
 
 
@@ -67,7 +86,52 @@ public class ExelParser {
     }
 
     private String getStringCell(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
         return cell.getStringCellValue().trim();
+    }
+
+
+    private String getFormatAddress(Cell cell) { //метод приведения адреса к формату "Ул. Ленина 99 - 101"
+        // toDo Реализовать проверку всех типов адресов
+        String address = getStringCell(cell);
+        if (address.equals("")) { //если ячейка пустая-возвращаем последнее значение записанное в addressInMemory;
+            return addressInMemory;
+        }
+        String formatted = address.trim()
+                .replaceAll("[Уу]лица", "Ул.")
+                .replaceAll("[Пп]роспект", "Пр.")
+                .replaceAll("\\bд\\.|дом\\b|корп\\.|к\\.|строение\\b|стр\\.", "")
+                .replaceAll("\\s+", " ")
+                .replaceAll("\\s*,\\s*", " ")
+                .replaceAll("\\s*/\\s*", "/");
+        Pattern pattern = Pattern.compile(
+                "^([Уу][Лл]\\.|[Пп][Рр]\\.|[Пп][Ее][Рр]\\.)?\\s*([А-Яа-яЁё-]+)\\s*(\\d+[А-Яа-яЁё]?)(?:\\s*[-–—]\\s*(\\d+[А-Яа-яЁё]?))?.*$"
+        );
+        Matcher matcher = pattern.matcher(formatted);
+        if (matcher.matches()) {
+
+            String streetType = matcher.group(1) != null ?
+                    matcher.group(1).replaceAll("[уУ][Лл]\\.", "Ул.").replaceAll("[пП][Рр]\\.", "Пр.")
+                            .replaceAll("[Пп][Ее][Рр]\\.", "Пер.") : "Ул.";
+
+            String sName = (matcher.group(2).trim());
+            String streetName = sName.substring(0, 1).toUpperCase() + sName.substring(1).toLowerCase();
+            String startNumber = matcher.group(3);
+            String endNumber = matcher.group(4);
+
+            // 3. Собираем отформатированный адрес
+            if (endNumber != null && !endNumber.isEmpty()) {
+                addressInMemory = String.format("%s %s %s - %s", streetType, streetName, startNumber, endNumber);
+                return addressInMemory;
+            } else {
+                addressInMemory = String.format("%s %s %s", streetType, streetName, startNumber);
+                return addressInMemory;
+            }
+        }
+
+        return address; // если значение не подходит под шаблон-возвращаем без именений
     }
 
     private boolean isFileCorrect(Row row) {
@@ -80,11 +144,6 @@ public class ExelParser {
 
 
         return firstColumnNameOrigin.equals(firstColumnName) & secondColumnNameOrigin.equals(secondColumnName);
-    }
-
-    private String getAdres(String adres) {
-        //toDo Проверка адреса соответствию формата, возврат правильного адреса
-        return "";
     }
 
 
