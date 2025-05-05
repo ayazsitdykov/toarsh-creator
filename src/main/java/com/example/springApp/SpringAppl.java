@@ -3,6 +3,7 @@ package com.example.springApp;
 import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
+import com.example.springApp.services.XMLWriter;
 import com.example.springApp.waterservice.*;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -26,11 +27,7 @@ public class SpringAppl {
         List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
         new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
 
-        for (IPU ip : waterMeterList.values()) {
-            System.out.println(ip.getManufactureNum() + " " + ip.getMetrologist() + " " + ip.getOwner());
-
-
-        }
+        new XMLWriter().toArchWriter(waterMeterList);
 
 
 

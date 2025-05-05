@@ -17,8 +17,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExelParser {
-    String addressInMemory = "Ул. Ленина 92-124";//Если в файле отсутсвует адрес-устанавливаем это значение
-    String metrologyMemory = "Ситдыков Р. Н."; //Если в файле отсутсвует поверитель-устанавливаем это значение
+    String addressInMemory = "Ул. Ленина 92-124";
+    //Если в файле отсутсвует адрес-устанавливаем это значение
+    String metrologyMemory = "Ситдыков Р. Н.";
+    //Если в файле отсутсвует поверитель-устанавливаем это значение
 
     public HashMap<Key, IPU> parse(String filePath) {
         HashMap<Key, IPU> waterMeterList = new HashMap<>();
@@ -67,17 +69,20 @@ public class ExelParser {
 
     private String getMetrologist(Cell cell) {
         String metrologist = getStringCell(cell);
-        if (metrologist.equals("")) { //если ячейка пустая-возвращаем последнее значение записанное в metrologyMemory
+        if (metrologist.equals("")) {
+            //если ячейка пустая-возвращаем последнее значение записанное в metrologyMemory
             return metrologyMemory;
         }
-        metrologyMemory = metrologist; //записываем в память значение
+        metrologyMemory = metrologist;
+        //записываем в память значение
         return metrologist;
     }
 
     private String getOwner(Cell cell) {
         String owner = getStringCell(cell);
 
-        return owner.equals("") ? "Физическое лицо" : owner; //если ячейка пустая, возвращаем "Физическое лицо"
+        return owner.equals("") ? "Физическое лицо" : owner;
+        //если ячейка пустая, возвращаем "Физическое лицо"
     }
 
 
@@ -96,7 +101,8 @@ public class ExelParser {
     private String getFormatAddress(Cell cell) { //метод приведения адреса к формату "Ул. Ленина 99 - 101"
         // toDo Реализовать проверку всех типов адресов
         String address = getStringCell(cell);
-        if (address.equals("")) { //если ячейка пустая-возвращаем последнее значение записанное в addressInMemory;
+        if (address.equals("")) {
+            //если ячейка пустая-возвращаем последнее значение записанное в addressInMemory;
             return addressInMemory;
         }
         String formatted = address.trim()
@@ -131,7 +137,8 @@ public class ExelParser {
             }
         }
 
-        return address; // если значение не подходит под шаблон-возвращаем без именений
+        return address;
+        // если значение не подходит под шаблон-возвращаем без именений
     }
 
     private boolean isFileCorrect(Row row) {
