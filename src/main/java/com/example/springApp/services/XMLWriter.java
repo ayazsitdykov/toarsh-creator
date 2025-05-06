@@ -18,7 +18,14 @@ import java.util.Random;
 
 public class XMLWriter {
 
-    public void toArchWriter(HashMap<Key, IPU> waterMeterList) {
+    public void toArchWriter(HashMap<Key, IPU> waterMeterList, String fileName, String savePath) {
+
+        File dir = new File(savePath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+
         try {
             // Создаем фабрику и построитель документов
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -26,6 +33,7 @@ public class XMLWriter {
 
             // Создаем новый документ
             Document doc = docBuilder.newDocument();
+            doc.setXmlStandalone(true);// <-- Вот эта строка добавляет standalone="yes"
 
             // Создаем корневой элемент
             Element rootElement = doc.createElementNS(
@@ -154,13 +162,14 @@ public class XMLWriter {
             }
 
             // Записываем содержимое в файл
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.STANDALONE, "yes"); // явно указываем standalone
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
+
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File("toArch " + "_" + "2023.xml"));
+            StreamResult result = new StreamResult(new File(savePath + fileName + ".xml"));
 
             transformer.transform(source, result);
 

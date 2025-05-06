@@ -12,15 +12,13 @@ import java.io.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExelParser {
-    String addressInMemory = "Ул. Ленина 92-124";
-    //Если в файле отсутсвует адрес-устанавливаем это значение
-    String metrologyMemory = "Ситдыков Р. Н.";
-    //Если в файле отсутсвует поверитель-устанавливаем это значение
+    String addressInMemory = "Ул. Ленина 92-124";//Если в файле отсутсвует адрес в 1 строчке-устанавливаем это значение
+    String metrologyMemory = "Ситдыков Р. Н.";//Если в файле отсутсвует поверитель-устанавливаем это значение
+
 
     public HashMap<Key, IPU> parse(String filePath) {
         HashMap<Key, IPU> waterMeterList = new HashMap<>();
@@ -64,7 +62,6 @@ public class ExelParser {
 
         return waterMeterList;
     }
-
 
 
     private String getMetrologist(Cell cell) {

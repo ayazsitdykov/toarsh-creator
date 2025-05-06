@@ -17,7 +17,10 @@ public class SpringAppl {
 
     public static void main(String[] args) throws IOException {
         //SpringApplication.run(SpringAppl.class, args);
-        HashMap<Key, IPU> waterMeterList = new ExelParser().parse("file.xlsx");
+        String filePath = "file.xlsx";
+        String savePath = "C:/Users/a.sitdykov/Desktop/project/toarsh-creator/result/"; // путь сохранения файлов XML и Excel
+
+        HashMap<Key, IPU> waterMeterList = new ExelParser().parse(filePath);
 
         new CreatorParameters().paramCreate(waterMeterList);
 
@@ -27,7 +30,7 @@ public class SpringAppl {
         List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
         new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
 
-        new XMLWriter().toArchWriter(waterMeterList);
+        new XMLWriter().toArchWriter(waterMeterList, filePath, savePath);
 
 
 
