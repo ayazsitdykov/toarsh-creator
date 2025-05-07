@@ -1,4 +1,4 @@
-package com.example.springApp.waterservice;
+package com.example.springApp.wmservice;
 
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.jetbrains.annotations.NotNull;
 
 
 import java.io.*;
@@ -30,11 +31,16 @@ public class ExelParser {
 
             for (Row row : sheet) {
 
-                if (row.getRowNum() == 0) {
+                if (row.getRowNum() == 0) { //пропускаем первую строчку
                     if (isFileCorrect(row)) {
                         continue;
                     }
                     System.out.println("Выбран некорректный файл excel");
+                    break;
+
+                }
+
+                if (row.getCell(0) == null) { //прерываем цикл, если в первая ячейка строчки пустая
                     break;
 
                 }
@@ -49,6 +55,7 @@ public class ExelParser {
                 waterMeter.setValidDate(getDateCell(row.getCell(4)));
                 waterMeter.setHot(getStringCell(row.getCell(5)).equals("ГВС"));
                 waterMeter.setAddress(getFormatAddress(row.getCell(6)));
+                waterMeter.setActNum(getStringCell(row.getCell(7)));
                 waterMeter.setOwner(getOwner(row.getCell(8)));
                 waterMeter.setMetrologist(getMetrologist(row.getCell(9)));
 
@@ -84,6 +91,7 @@ public class ExelParser {
 
 
     private LocalDate getDateCell(Cell cell) {
+
         return cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 

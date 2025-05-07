@@ -1,4 +1,4 @@
-package com.example.springApp.waterservice;
+package com.example.springApp.wmservice;
 
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;

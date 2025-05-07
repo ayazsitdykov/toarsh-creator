@@ -1,4 +1,4 @@
-package com.example.springApp.waterservice;
+package com.example.springApp.wmservice;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

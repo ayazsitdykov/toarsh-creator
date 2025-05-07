@@ -1,4 +1,4 @@
-package com.example.springApp.waterservice;
+package com.example.springApp.wmservice;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;

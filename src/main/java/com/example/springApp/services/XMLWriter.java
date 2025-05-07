@@ -18,7 +18,9 @@ import java.util.Random;
 
 public class XMLWriter {
 
-    public void toArchWriter(HashMap<Key, IPU> waterMeterList, String fileName, String savePath) {
+    public void toArchWriter(HashMap<Key, IPU> waterMeterList, String filePath, String savePath) {
+
+        String fileName = filePath.substring(0, filePath.lastIndexOf('.')); //убираем расширение из названия
 
         File dir = new File(savePath);
         if (!dir.exists()) {

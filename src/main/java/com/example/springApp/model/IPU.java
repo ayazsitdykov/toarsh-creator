@@ -10,7 +10,7 @@ import java.time.LocalDate;
 public class IPU {
 
     private final String signCipher = "ДЧЯ";
-    private final String docTitle = "Рекомендация.ГСИ.Счетчики воды.Методика поверки";
+    private final String docTitle = "МИ1592-2015 «Рекомендация.ГСИ.Счетчики воды.Методика поверки»";
 
     private String mitypeNumber;
     private String manufactureNum;
@@ -27,6 +27,7 @@ public class IPU {
     private boolean isHot;
     private String address;
     private String owner;
+    private String actNum;
 
 
     private String numberUpsz;

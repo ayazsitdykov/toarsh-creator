@@ -1,4 +1,4 @@
-package com.example.springApp.waterservice;
+package com.example.springApp.wmservice;
 
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
@@ -16,13 +16,13 @@ public class CreatorParameters {
 
 
             double temperature = new Random().nextInt(22, 26) + (double) new Random().nextInt(10) / 10;
-            ipuModel.setTemperature(temperature + " °С");
+            ipuModel.setTemperature(getString(temperature) + " °С");
 
             double pressure = new Random().nextInt(97, 101) + (double) new Random().nextInt(100) / 100;
-            ipuModel.setPressure(pressure + " кПа");
+            ipuModel.setPressure(getString(pressure) + " кПа");
 
-            double humidity = new Random().nextInt(35, 60) + (double) new Random().nextInt(10) / 10;
-            ipuModel.setHumidity(humidity + " %");
+            double humidity = new Random().nextInt(32, 60) + (double) new Random().nextInt(10) / 10;
+            ipuModel.setHumidity(getString(humidity) + " %");
 
 
             double other;
@@ -32,12 +32,18 @@ public class CreatorParameters {
             } else {
                 other = new Random().nextInt(10, 18) + halfStep;
             }
-            ipuModel.setOther("Температура раб. ср. " + other + " °С");
+            ipuModel.setOther("Температура раб. ср. " + getString(other) + " °С");
 
         }
 
+
+
     }
 
+    private String getString (double value) {
+        String param = String.valueOf(value).replace('.', ',');
+        return param;
+    }
 
 
 
