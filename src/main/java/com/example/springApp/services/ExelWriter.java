@@ -10,11 +10,11 @@ import org.apache.poi.ss.usermodel.Row;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.Map;
 
 public class ExelWriter {
 
-    public void exelCreator(HashMap<Key, IPU> waterMeterList, String fileName, String savePath) {
+    public void exelCreator(Map<Key, IPU> waterMeterList, String fileName, String savePath) {
 
         String fileNameFormat = fileName.substring(0, fileName.lastIndexOf('.')); //убираем расширение из названия
 

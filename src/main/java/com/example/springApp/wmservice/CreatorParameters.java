@@ -4,14 +4,14 @@ import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
 import lombok.Getter;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 @Getter
 public class CreatorParameters {
 
 
-    public void paramCreate(HashMap<Key, IPU> waterMeterList) {
+    public void paramCreate(Map<Key, IPU> waterMeterList) {
         for (IPU ipuModel : waterMeterList.values()) {
 
 

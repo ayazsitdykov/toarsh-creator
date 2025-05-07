@@ -13,12 +13,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.Map;
+
 
 public class XMLWriter {
 
-    public void toArchWriter(HashMap<Key, IPU> waterMeterList, String filePath, String savePath) {
+    public void toArchWriter(Map<Key, IPU> waterMeterList, String filePath, String savePath) {
 
         String fileName = filePath.substring(0, filePath.lastIndexOf('.')); //убираем расширение из названия
 

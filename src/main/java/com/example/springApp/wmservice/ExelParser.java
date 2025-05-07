@@ -6,13 +6,13 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jetbrains.annotations.NotNull;
+
 
 
 import java.io.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,8 +21,8 @@ public class ExelParser {
     String metrologyMemory = "Ситдыков Р. Н.";//Если в файле отсутсвует поверитель-устанавливаем это значение
 
 
-    public HashMap<Key, IPU> parse(String filePath) {
-        HashMap<Key, IPU> waterMeterList = new HashMap<>();
+    public LinkedHashMap<Key, IPU> parse(String filePath) {
+        LinkedHashMap<Key, IPU> waterMeterList = new LinkedHashMap<>();
 
 
         try (InputStream inputStream = new FileInputStream(filePath);
@@ -53,7 +53,7 @@ public class ExelParser {
                 waterMeter.setModification(getStringCell(row.getCell(2)));
                 waterMeter.setVrfDate(getDateCell(row.getCell(3)));
                 waterMeter.setValidDate(getDateCell(row.getCell(4)));
-                waterMeter.setHot(getStringCell(row.getCell(5)).equals("ГВС"));
+                waterMeter.setHot(getStringCell((row.getCell(5))).equals("ГВС"));
                 waterMeter.setAddress(getFormatAddress(row.getCell(6)));
                 waterMeter.setActNum(getStringCell(row.getCell(7)));
                 waterMeter.setOwner(getOwner(row.getCell(8)));

@@ -25,7 +25,7 @@ public class SpringAppl {
 
         String savePath = "C:/Users/a.sitdykov/Desktop/project/result/"; // путь сохранения файлов XML и Excel
 
-        HashMap<Key, IPU> waterMeterList = new ExelParser().parse(filePath);
+        Map<Key, IPU> waterMeterList = new ExelParser().parse(filePath);
 
         Map<String, Object> regFifList = new MpiJsonParser("regFif.json").regFifList;
 

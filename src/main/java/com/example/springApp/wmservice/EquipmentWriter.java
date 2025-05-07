@@ -4,12 +4,12 @@ import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.Key;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EquipmentWriter {
 
-    public void writingByMetrologist(HashMap<Key, IPU> waterMeterList, List<Equipment> eqL) {
+    public void writingByMetrologist(Map<Key, IPU> waterMeterList, List<Equipment> eqL) {
 
 
         for (IPU ipu : waterMeterList.values()) {
