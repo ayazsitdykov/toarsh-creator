@@ -1,12 +1,11 @@
 package com.example.springApp.wmservice;
 
 import com.example.springApp.model.IPU;
-import com.example.springApp.model.Key;
+import com.example.springApp.model.KeyMeter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 
 
 import java.io.*;
@@ -20,9 +19,9 @@ public class ExelParser {
     String addressInMemory = "Ул. Ленина 92-124";//Если в файле отсутсвует адрес в 1 строчке-устанавливаем это значение
     String metrologyMemory = "Ситдыков Р. Н.";//Если в файле отсутсвует поверитель-устанавливаем это значение
 
+    public LinkedHashMap<KeyMeter, IPU> waterMeterList = new LinkedHashMap<>();
 
-    public LinkedHashMap<Key, IPU> parse(String filePath) {
-        LinkedHashMap<Key, IPU> waterMeterList = new LinkedHashMap<>();
+    public LinkedHashMap<KeyMeter, IPU> parse(String filePath) {
 
 
         try (InputStream inputStream = new FileInputStream(filePath);
@@ -35,6 +34,7 @@ public class ExelParser {
                     if (isFileCorrect(row)) {
                         continue;
                     }
+
                     System.out.println("Выбран некорректный файл excel");
                     break;
 
@@ -47,7 +47,6 @@ public class ExelParser {
 
                 IPU waterMeter = new IPU();
 
-
                 waterMeter.setMitypeNumber(getStringCell(row.getCell(0)));
                 waterMeter.setManufactureNum(getStringCell(row.getCell(1)));
                 waterMeter.setModification(getStringCell(row.getCell(2)));
@@ -59,8 +58,13 @@ public class ExelParser {
                 waterMeter.setOwner(getOwner(row.getCell(8)));
                 waterMeter.setMetrologist(getMetrologist(row.getCell(9)));
 
+                KeyMeter key = new KeyMeter(waterMeter.getManufactureNum(), waterMeter.getVrfDate());
 
-                waterMeterList.put(new Key(waterMeter.getManufactureNum(), waterMeter.getVrfDate()), waterMeter);
+                if (isMeterExist(key)) {
+                    System.out.println("Счетчик с номером " + key.getNumber() + " встречается повторно!");
+                    return null; //возвращаем объект null, если счетчики повторяются
+                }
+                waterMeterList.put(key, waterMeter);
             }
 
         } catch (IOException e) {
@@ -156,6 +160,17 @@ public class ExelParser {
 
 
         return firstColumnNameOrigin.equals(firstColumnName) & secondColumnNameOrigin.equals(secondColumnName);
+    }
+
+    private boolean isMeterExist(KeyMeter key) {
+
+
+        for (KeyMeter keyM : waterMeterList.keySet()) {
+            if (keyM.getNumber().equals(key.getNumber())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

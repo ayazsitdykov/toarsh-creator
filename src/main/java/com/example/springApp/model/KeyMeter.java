@@ -1,17 +1,16 @@
 package com.example.springApp.model;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Objects;
 
 @Getter
-public class Key {
+public class KeyMeter {
     private String number;
     private LocalDate vrfDate;
 
-    public Key(String number, LocalDate vrfDate) {
+    public KeyMeter(String number, LocalDate vrfDate) {
         this.number = number;
         this.vrfDate = vrfDate;
     }
@@ -27,8 +26,8 @@ public class Key {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Key)) return false;
-        Key key = (Key) o;
+        if (!(o instanceof KeyMeter)) return false;
+        KeyMeter key = (KeyMeter) o;
         return Objects.equals(number, key.number) && Objects.equals(vrfDate, key.vrfDate);
     }
 

@@ -1,12 +1,12 @@
 spring:
-    datasource:
-        url: jdbc:mysql://localhost:3306/skillbox
-        username: root
-        password: Pass
-    jpa:
-        properties:
-            hibernate:
-                12dialect: org.hubernate.dialect.MySQLDialect
-        hibernate:
-            ddl-auto: create
-        show-sql: true
+  datasource:
+    url: jdbc:mysql://localhost:3306/skillbox
+    username: root
+    password: Pass
+  jpa:
+    properties:
+      hibernate:
+        12dialect: org.hubernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create
+    show-sql: true

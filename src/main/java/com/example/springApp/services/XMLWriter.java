@@ -8,7 +8,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import com.example.springApp.model.IPU;
-import com.example.springApp.model.Key;
+import com.example.springApp.model.KeyMeter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class XMLWriter {
 
-    public void toArchWriter(Map<Key, IPU> waterMeterList, String filePath, String savePath) {
+    public void toArchWriter(Map<KeyMeter, IPU> waterMeterList, String filePath, String savePath) {
 
         String fileName = filePath.substring(0, filePath.lastIndexOf('.')); //убираем расширение из названия
 
@@ -175,7 +175,7 @@ public class XMLWriter {
 
             transformer.transform(source, result);
 
-            System.out.println("XML-файл успешно создан!");
+            System.out.println("Создан файл \"" + fileName + ".xml\"");
         } catch (ParserConfigurationException | TransformerException e) {
             e.printStackTrace();
         }

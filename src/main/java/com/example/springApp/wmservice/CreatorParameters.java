@@ -1,7 +1,7 @@
 package com.example.springApp.wmservice;
 
 import com.example.springApp.model.IPU;
-import com.example.springApp.model.Key;
+import com.example.springApp.model.KeyMeter;
 import lombok.Getter;
 
 import java.util.Map;
@@ -11,7 +11,7 @@ import java.util.Random;
 public class CreatorParameters {
 
 
-    public void paramCreate(Map<Key, IPU> waterMeterList) {
+    public void paramCreate(Map<KeyMeter, IPU> waterMeterList) {
         for (IPU ipuModel : waterMeterList.values()) {
 
 

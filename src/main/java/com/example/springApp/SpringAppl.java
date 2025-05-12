@@ -2,14 +2,13 @@ package com.example.springApp;
 
 import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
-import com.example.springApp.model.Key;
+import com.example.springApp.model.KeyMeter;
 import com.example.springApp.services.ExelWriter;
 import com.example.springApp.services.XMLWriter;
 import com.example.springApp.wmservice.*;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ public class SpringAppl {
 
         String savePath = "C:/Users/a.sitdykov/Desktop/project/result/"; // путь сохранения файлов XML и Excel
 
-        Map<Key, IPU> waterMeterList = new ExelParser().parse(filePath);
+        Map<KeyMeter, IPU> waterMeterList = new ExelParser().parse(filePath);
 
         Map<String, Object> regFifList = new MpiJsonParser("regFif.json").regFifList;
 
@@ -33,6 +32,7 @@ public class SpringAppl {
 
 
         if ( !ec.hasError) {
+            System.out.println("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
             new CreatorParameters().paramCreate(waterMeterList);
 
             List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
@@ -40,6 +40,7 @@ public class SpringAppl {
 
             new XMLWriter().toArchWriter(waterMeterList, fileName, savePath);
             new ExelWriter().exelCreator(waterMeterList, fileName, savePath);
+
 
         }
 

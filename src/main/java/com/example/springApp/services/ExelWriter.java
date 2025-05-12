@@ -1,32 +1,33 @@
 package com.example.springApp.services;
 
 import com.example.springApp.model.IPU;
-import com.example.springApp.model.Key;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import com.example.springApp.model.KeyMeter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
-
-import java.io.File;
 import java.io.FileOutputStream;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+
 public class ExelWriter {
 
-    public void exelCreator(Map<Key, IPU> waterMeterList, String fileName, String savePath) {
+    public void exelCreator(Map<KeyMeter, IPU> waterMeterList, String fileName, String savePath) {
+
 
         String fileNameFormat = fileName.substring(0, fileName.lastIndexOf('.')); //убираем расширение из названия
 
 
-        try (FileOutputStream out = new FileOutputStream(new File(savePath + fileNameFormat + ".xls"))) {
-            HSSFWorkbook wb = new HSSFWorkbook();
+        try (FileOutputStream out = new FileOutputStream(savePath + fileNameFormat + ".xls")) {
+            Workbook wb = new HSSFWorkbook();
 
-            HSSFSheet sheet = wb.createSheet("Sheet1");
+            Sheet sheet = wb.createSheet("Sheet1");
             int rowNum = 0;
-            int cellNum = 0;
+           /* int cellNum = 0;
 
-            // создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
+             //создаем подписи к столбцам (это будет первая строчка в листе Excel файла)
             Row row0 = sheet.createRow(rowNum);
             row0.createCell(cellNum++).setCellValue("Госреестр");
             row0.createCell(cellNum++).setCellValue("Номер счетчика");
@@ -55,16 +56,18 @@ public class ExelWriter {
             row0.createCell(cellNum++).setCellValue("Номер акта");
             row0.createCell(cellNum).setCellValue("Адрес");
 
+            */
+
                 for (IPU ipu : waterMeterList.values()) {
-                    Row row = sheet.createRow(++rowNum);
+                    Row row = sheet.createRow(rowNum++);
                     int i = 0;
                     row.createCell(i++).setCellValue(ipu.getMitypeNumber());
                     row.createCell(i++).setCellValue(ipu.getManufactureNum());
                     row.createCell(i++).setCellValue(ipu.getModification());
                     row.createCell(i++).setCellValue(ipu.getSignCipher());
                     row.createCell(i++).setCellValue(ipu.getOwner());
-                    row.createCell(i++).setCellValue(ipu.getVrfDate().format(DateTimeFormatter.ofPattern("dd.MM.YYYY")));
-                    row.createCell(i++).setCellValue(ipu.getValidDate().format(DateTimeFormatter.ofPattern("dd.MM.YYYY")));
+                    row.createCell(i++).setCellValue(ipu.getVrfDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+                    row.createCell(i++).setCellValue(ipu.getValidDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
                     row.createCell(i++).setCellValue(2);
                     row.createCell(i++).setCellValue(String.valueOf(false));
                     row.createCell(i++).setCellValue(String.valueOf(false));
@@ -83,11 +86,15 @@ public class ExelWriter {
                     row.createCell(i++).setCellValue(ipu.getHumidity());
                     row.createCell(i++).setCellValue(ipu.getOther());
                     row.createCell(i++).setCellValue(ipu.getActNum());
-                    row.createCell(i++).setCellValue(ipu.getAddress());
+                    row.createCell(i).setCellValue(ipu.getAddress());
 
             }
+            // Автонастройка ширины столбцов
+            for (int i = 0; i < 26; i++) {
+                sheet.autoSizeColumn(i);
+            }
             wb.write(out);
-            System.out.println("Создан файл " + fileName);
+            System.out.println("Создан файл \"" + fileNameFormat + ".xls\"");
 
 
         } catch (Exception e) {
