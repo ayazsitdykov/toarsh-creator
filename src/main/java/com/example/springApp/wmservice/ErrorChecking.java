@@ -28,10 +28,10 @@ public class ErrorChecking {
                 try {
                     mpi = regFifList.get(value.getMitypeNumber()).get(value.isHot() ? "ГВС" : "ХВС");
                 } catch (Exception ex) {
-                    printMessage(value.getManufactureNum(), "Рег номер - " + value.getMitypeNumber() + "- не найден в базе");
+                    printMessage(value.getManufactureNum(), "Рег номер - " + value.getMitypeNumber() + " - не найден в базе");
                 }
 
-                if (!(value.getVrfDate().plusYears(mpi).minusDays(1).equals(value.getValidDate()))) {
+                if (!(value.getVrfDate().plusYears(mpi).minusDays(1).equals(value.getValidDate())) && mpi != 0) {
 
 
                     printMessage(value.getManufactureNum(), "Несоответствие дат МПИ");
