@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class EquipmentWriter {
 
-    public void writingByMetrologist(Map<KeyMeter, IPU> waterMeterList, List<Equipment> eqL) {
+    public void writingByMetrologist(Map<KeyMeter, IPU> waterMeterList, List<Equipment> eqL) throws Exception {
 
 
         for (IPU ipu : waterMeterList.values()) {
@@ -25,6 +25,11 @@ public class EquipmentWriter {
                     break;
 
                 }
+            }
+
+            if (ipu.getNumberUpsz() == null) { // Проверяем, записались ли данные по прибору
+                System.out.println();
+                throw new Exception("Неправильно указан поверитель в строчке с номером счетчика " + ipu.getManufactureNum());
             }
 
 

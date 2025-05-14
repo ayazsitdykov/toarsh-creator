@@ -1,14 +1,12 @@
 package com.example.springApp.wmservice;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class MpiJsonParser {
@@ -16,40 +14,71 @@ public class MpiJsonParser {
     public Map<String, Object> regFifList = new HashMap<>();
     File file;
 
+
     public MpiJsonParser(String path) throws IOException {
         this.file = new File(path);
         this.mapping();
     }
 
 
-    ObjectMapper objectMapper = new ObjectMapper();
-
     private void mapping() throws IOException {
-        Map<String, Object> listM = objectMapper.readValue(file, new TypeReference<>() {
-        });
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(file);
 
-        listM.forEach((key, value) -> {
-            try {
+            // Общий Map для всех данных
 
-                if (value instanceof Map<?, ?>) {
-                    HashMap<String, Integer> ob = (HashMap<String, Integer>) value;
-                    regFifList.put(key, ob);
-                } else if (value instanceof Integer) {
-                    int v = (Integer) value;
-                    LinkedHashMap<String, Integer> hm = new LinkedHashMap<>();
-                    hm.put("ГВС", v);
-                    hm.put("ХВС", v);
-                    regFifList.put(key, hm);
+
+            Iterator<Map.Entry<String, JsonNode>> fields = rootNode.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> entry = fields.next();
+                String key = entry.getKey();
+                JsonNode value = entry.getValue();
+
+                if (key.equals("stop")) {
+                    // Обработка списка stop
+                    List<String> stopList = new ArrayList<>();
+                    for (JsonNode stopItem : value) {
+                        stopList.add(stopItem.asText());
+                    }
+                    regFifList.put(key, stopList);
+                } else if (value.isObject()) {
+                    // Обработка сложных объектов с ГВС/ХВС
+                    Map<String, Object> serviceMap = new LinkedHashMap<>();
+                    Iterator<Map.Entry<String, JsonNode>> serviceFields = value.fields();
+                    while (serviceFields.hasNext()) {
+                        Map.Entry<String, JsonNode> serviceEntry = serviceFields.next();
+                        String serviceKey = serviceEntry.getKey();
+                        JsonNode serviceValue = serviceEntry.getValue();
+
+                        if (serviceValue.isArray()) {
+                            // Обработка массивов
+                            List<Integer> values = new ArrayList<>();
+                            for (JsonNode item : serviceValue) {
+                                values.add(item.asInt());
+                            }
+                            serviceMap.put(serviceKey, values);
+                        } else {
+                            // Обработка одиночных значений
+                            serviceMap.put(serviceKey, serviceValue.asInt());
+                        }
+                    }
+                    regFifList.put(key, serviceMap);
+                } else if (value.isNumber()) {
+                    // Обработка простых числовых значений
+                    Map<String, Integer> createValue = new LinkedHashMap<>();
+                    createValue.put("ГВС", value.intValue());
+                    createValue.put("ХВС", value.intValue());
+                    regFifList.put(key, createValue);
                 }
-
-            } catch (Exception e) {
-                System.out.println("Ошибка файла JSON");
-
             }
 
 
-        });
-
-
+        } catch (Exception e) {
+            System.out.println("Ошибка файла JSON");
+        }
     }
 }
+
+
+

@@ -40,7 +40,8 @@ public class ExelParser {
 
                 }
 
-                if (row.getCell(0) == null) { //прерываем цикл, если в первая ячейка строчки пустая
+
+                if (!row.getCell(0).getCellType().name().equals("STRING")) { //прерываем цикл, если в первая ячейка строчка не строка
                     break;
 
                 }
@@ -75,6 +76,8 @@ public class ExelParser {
     }
 
 
+
+
     private String getMetrologist(Cell cell) {
         String metrologist = getStringCell(cell);
         if (metrologist.equals("")) {
@@ -96,13 +99,24 @@ public class ExelParser {
 
     private LocalDate getDateCell(Cell cell) {
 
+
         return cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
     private String getStringCell(Cell cell) {
+
         if (cell == null) {
+
             return "";
         }
+        if(cell.getCellType().name().equals("NUMERIC")) {
+
+            String str = String.valueOf(cell.getNumericCellValue()).replace(".","")
+                    .replace("E7", "");
+            return str;
+        }
+
+
         return cell.getStringCellValue().trim();
     }
 

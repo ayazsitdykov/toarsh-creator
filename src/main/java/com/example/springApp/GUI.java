@@ -114,15 +114,18 @@ public class GUI extends JFrame {
 
                 Map<String, Object> regFifList = new MpiJsonParser("regFif.json").regFifList;
 
+                List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
+                new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
+
                 ErrorChecking ec = new ErrorChecking(waterMeterList, regFifList);
 
 
                 if ( !ec.hasError) {
+
                     System.out.println("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
                     new CreatorParameters().paramCreate(waterMeterList);
 
-                    List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
-                    new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
+
 
                     new XMLWriter().toArchWriter(waterMeterList, fileName, savePath);
                     new ExelWriter().exelCreator(waterMeterList, fileName, savePath);
