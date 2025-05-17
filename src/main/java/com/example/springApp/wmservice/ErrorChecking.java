@@ -12,19 +12,21 @@ import java.util.Map;
 
 
 public class ErrorChecking {
+    StringBuilder stringBuilder = new StringBuilder("\n");
     Map<KeyMeter, IPU> waterMeterList;
     Map<String, Object> regFifList;
     public boolean hasError = false;
     Logger logger = LoggerFactory.getLogger(ErrorChecking.class);
+
     public ErrorChecking(Map<KeyMeter, IPU> waterMeterList, Object regFifList) {
 
         this.regFifList = (Map<String, Object>) regFifList;
         this.waterMeterList = waterMeterList;
-        this.errorChecking();
+
     }
 
 
-    public void errorChecking() {
+    public StringBuilder errorChecking() {
 
         if (waterMeterList == null) {
             hasError = true;
@@ -55,9 +57,9 @@ public class ErrorChecking {
                         if (hotArray.get("ГВС") instanceof List) {
                             @SuppressWarnings("unchecked")
                             List<Integer> gvsValues = (List<Integer>) hotArray.get("ГВС");
+                            @SuppressWarnings("unchecked")
+                            List<Integer> hvsValues = (List<Integer>) hotArray.get("ХВС");
 
-                            List<Integer> hvsValues = new ArrayList<>();
-                            hvsValues.add((Integer) hotArray.get("ХВС"));
                             mpi.addAll(value.isHot() ? gvsValues : hvsValues);
 
 
@@ -87,19 +89,26 @@ public class ErrorChecking {
                 if (!mpi.contains(-1) && !mpi.contains(vrfPeriod)) {
 
                     printMessage(value.getManufactureNum(), "Несоответствие дат МПИ");
-                   
-
 
 
                 }
 
             });
+            if (!hasError) {
+                stringBuilder.append("Файл прочитан - ошибок не обнаружено");
+            }
         }
+        return stringBuilder;
     }
+
+
 
 
     public void printMessage(String number, String message) {
         hasError = true;
+
+        stringBuilder.append("Счетчик с номером " + number + " - " + message + "\n");
+
         System.out.println("Счетчик с номером " + number + " - " + message);
     }
 }

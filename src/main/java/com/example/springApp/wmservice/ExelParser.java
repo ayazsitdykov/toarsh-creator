@@ -76,23 +76,21 @@ public class ExelParser {
     }
 
 
-
-
     private String getMetrologist(Cell cell) {
         String metrologist = getStringCell(cell);
-        if (metrologist.equals("")) {
-            //если ячейка пустая-возвращаем последнее значение записанное в metrologyMemory
-            return metrologyMemory;
+        if (!metrologist.equals("")) {
+            metrologyMemory = metrologist.replaceAll("\\.(\\p{L})", ". $1");
+            //записываем в память значение
         }
-        metrologyMemory = metrologist;
-        //записываем в память значение
-        return metrologist;
+        //если ячейка пустая-возвращаем последнее значение записанное в metrologyMemory
+        return metrologyMemory;
     }
 
     private String getOwner(Cell cell) {
         String owner = getStringCell(cell);
+        String ownerFormat = owner.replaceAll("[Юю][Лл]", "Юридическое лицо").replaceAll("[Юю]р.лицо", "Юридическое лицо");
 
-        return owner.equals("") ? "Физическое лицо" : owner;
+        return owner.equals("") ? "Физическое лицо" : ownerFormat;
         //если ячейка пустая, возвращаем "Физическое лицо"
     }
 
@@ -109,9 +107,9 @@ public class ExelParser {
 
             return "";
         }
-        if(cell.getCellType().name().equals("NUMERIC")) {
+        if (cell.getCellType().name().equals("NUMERIC")) {
 
-            String str = String.valueOf(cell.getNumericCellValue()).replace(".","")
+            String str = String.valueOf(cell.getNumericCellValue()).replace(".", "")
                     .replace("E7", "");
             return str;
         }
