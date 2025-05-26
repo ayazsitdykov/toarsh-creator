@@ -5,7 +5,6 @@ import com.example.springApp.model.KeyMeter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -83,10 +82,17 @@ public class ErrorChecking {
                     printMessage(value.getManufactureNum(), "Рег номер - " + value.getMitypeNumber() + " - не найден в базе");
                 }
 
-                Period period = Period.between(value.getVrfDate(), value.getValidDate().plusDays(1));
-                int vrfPeriod = period.getYears();
+                boolean isDateCorrect = false;
+                for (int year : mpi) {
+                    if (value.getVrfDate().plusYears(year).minusDays(1)
+                            .equals(value.getValidDate())) {
+                        isDateCorrect = true;
+                        break;
+                    }
+                }
 
-                if (!mpi.contains(-1) && !mpi.contains(vrfPeriod)) {
+
+                if (!mpi.contains(-1) && !isDateCorrect && !mpi.isEmpty()) {
 
                     printMessage(value.getManufactureNum(), "Несоответствие дат МПИ");
 

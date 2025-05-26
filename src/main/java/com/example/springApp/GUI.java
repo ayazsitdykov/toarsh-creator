@@ -3,7 +3,7 @@ package com.example.springApp;
 import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.KeyMeter;
-import com.example.springApp.services.ExelWriter;
+import com.example.springApp.services.ExcelWriter;
 import com.example.springApp.services.XMLWriter;
 import com.example.springApp.wmservice.*;
 
@@ -11,7 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Formatter;
 import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -24,7 +26,7 @@ public class GUI extends JFrame {
     private JButton saveButton;
     private JProgressBar progressBar;
     private File selectedFile;
-    private Path savePath;
+    private String savePath;
 
     public GUI() {
         setTitle("Формирование XML в аршин");
@@ -91,8 +93,13 @@ public class GUI extends JFrame {
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             selectedFile = fileChooser.getSelectedFile();
+            savePath = selectedFile.getParent() + "/Запись в аршин." + LocalDate.now()
+                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "/";
             logMessage("Выбран файл: " + selectedFile.getName());
+            logMessage("Выбрана папка для сохранения: " + savePath);
             saveButton.setEnabled(true);
+            processButton.setEnabled(true);
+
         }
     }
 
@@ -103,15 +110,15 @@ public class GUI extends JFrame {
 
 
         if (dirChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            savePath = dirChooser.getSelectedFile().toPath();
+            savePath = dirChooser.getSelectedFile().toPath().toString();
             logMessage("Выбрана папка для сохранения: " + savePath);
-            processButton.setEnabled(true);
+
         }
     }
 
     private void processFileAction(ActionEvent e) {
         if (selectedFile == null) return;
-        if (savePath == null) return;
+        if (savePath.isEmpty()) return;
 
         processButton.setEnabled(false);
         saveButton.setEnabled(false);
@@ -128,7 +135,7 @@ public class GUI extends JFrame {
 
                 // String savePath = "C:/Users/a.sitdykov/Desktop/project/result/"; // путь сохранения файлов XML и Excel
 
-                Map<KeyMeter, IPU> waterMeterList = new ExelParser().parse(filePath);
+                Map<KeyMeter, IPU> waterMeterList = new ExcelParser().parse(filePath);
 
                 publish("Проверка ошибок...");
 
@@ -149,8 +156,8 @@ public class GUI extends JFrame {
 
 
                     publish("Запись файлов...");
-                    new XMLWriter().toArchWriter(waterMeterList, fileName, savePath.toString());
-                    new ExelWriter().exelCreator(waterMeterList, fileName, savePath.toString());
+                    new XMLWriter().toArchWriter(waterMeterList, fileName, savePath);
+                    new ExcelWriter().exelCreator(waterMeterList, fileName, savePath);
 
 
                 }

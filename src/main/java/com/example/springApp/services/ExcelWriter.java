@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 
-public class ExelWriter {
+public class ExcelWriter {
 
     public void exelCreator(Map<KeyMeter, IPU> waterMeterList, String fileName, String savePath) {
 

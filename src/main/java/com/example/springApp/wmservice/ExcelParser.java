@@ -6,17 +6,23 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.cglib.core.Local;
 
 
 import java.io.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ExelParser {
-    String addressInMemory = "Ул. Ленина 92-124";//Если в файле отсутсвует адрес в 1 строчке-устанавливаем это значение
+public class ExcelParser {
+    String addressInMemory = "Ул. Ленина, " + (new Random().nextInt(100) + 50)
+            + " - " + (new Random().nextInt(5) + 10);
+    //Если в файле отсутсвует адрес в 1 строчке-устанавливаем это значение
+
     String metrologyMemory = "Ситдыков Р. Н.";//Если в файле отсутсвует поверитель-устанавливаем это значение
 
     public LinkedHashMap<KeyMeter, IPU> waterMeterList = new LinkedHashMap<>();
@@ -41,24 +47,23 @@ public class ExelParser {
                 }
 
 
-                if (!row.getCell(0).getCellType().name().equals("STRING")) { //прерываем цикл, если в первая ячейка строчка не строка
+                if (row.getCell(0) == null || !row.getCell(0).getCellType().name().equals("STRING")) { //прерываем цикл, если в первой ячейке строчки не строка
                     break;
 
                 }
 
-                IPU waterMeter = new IPU();
 
+                IPU waterMeter = new IPU();
                 waterMeter.setMitypeNumber(getStringCell(row.getCell(0)));
                 waterMeter.setManufactureNum(getStringCell(row.getCell(1)));
                 waterMeter.setModification(getStringCell(row.getCell(2)));
                 waterMeter.setVrfDate(getDateCell(row.getCell(3)));
                 waterMeter.setValidDate(getDateCell(row.getCell(4)));
-                waterMeter.setHot(getStringCell((row.getCell(5))).equals("ГВС"));
+                waterMeter.setHot(getStringCell((row.getCell(5))).equalsIgnoreCase("ГВС"));
                 waterMeter.setAddress(getFormatAddress(row.getCell(6)));
                 waterMeter.setActNum(getStringCell(row.getCell(7)));
                 waterMeter.setOwner(getOwner(row.getCell(8)));
                 waterMeter.setMetrologist(getMetrologist(row.getCell(9)));
-
                 KeyMeter key = new KeyMeter(waterMeter.getManufactureNum(), waterMeter.getVrfDate());
 
                 if (isMeterExist(key)) {
@@ -87,16 +92,18 @@ public class ExelParser {
     }
 
     private String getOwner(Cell cell) {
-        String owner = getStringCell(cell);
-        String ownerFormat = owner.replaceAll("[Юю][Лл]", "Юридическое лицо").replaceAll("[Юю]р.лицо", "Юридическое лицо");
 
-        return owner.equals("") ? "Физическое лицо" : ownerFormat;
-        //если ячейка пустая, возвращаем "Физическое лицо"
-    }
+        boolean isCompany = getStringCell(cell)
+                .toLowerCase().trim()
+                .matches("юл|юр\\.?\\s?лицо|юр лицо|юридическое лицо");
+
+        return isCompany ? "Юридическое лицо" : "Физическое лицо";   }
 
 
     private LocalDate getDateCell(Cell cell) {
-
+        if (!cell.getCellType().name().equals("NUMERIC")) {
+            return LocalDate.of(1970,1,1);
+        }
 
         return cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
@@ -107,7 +114,9 @@ public class ExelParser {
 
             return "";
         }
+
         if (cell.getCellType().name().equals("NUMERIC")) {
+            System.out.println(cell.getCellType().name());
 
             String str = String.valueOf(cell.getNumericCellValue()).replace(".", "")
                     .replace("E7", "");
