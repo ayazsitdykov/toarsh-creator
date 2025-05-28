@@ -65,7 +65,23 @@ public class ErrorChecking {
                         } else {
                             @SuppressWarnings("unchecked")
                             Map<String, Integer> mpiValues = (Map<String, Integer>) regFifList.get(regNumber);
-                            mpi.add(value.isHot() ? mpiValues.get("ГВС") : mpiValues.get("ХВС"));
+                            if (value.isHot()) {
+                                if (!mpiValues.containsKey("ГВС")) {
+                                    printMessage(manufactureNumber, "Не используется для ГВС");
+                                    mpi.add(-1);
+                                } else {
+                                    mpi.add(mpiValues.get("ГВС"));
+                                }
+                            } else {
+                                if (!mpiValues.containsKey("ХВС")) {
+                                    printMessage(manufactureNumber, "Не используется для XВС");
+                                    mpi.add(-1);
+                                } else {
+                                    mpi.add(mpiValues.get("ХВС"));
+                                }
+                            }
+
+
                         }
 
 

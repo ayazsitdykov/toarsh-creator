@@ -27,6 +27,7 @@ public class GUI extends JFrame {
     private JProgressBar progressBar;
     private File selectedFile;
     private String savePath;
+    private JFileChooser fileChooser = new JFileChooser();
 
     public GUI() {
         setTitle("Формирование XML в аршин");
@@ -87,16 +88,17 @@ public class GUI extends JFrame {
     }
 
     private void selectFileAction(ActionEvent e) {
-        JFileChooser fileChooser = new JFileChooser();
+
+
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
                 "Excel files (*.xls, *.xlsx)", "xls", "xlsx"));
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             selectedFile = fileChooser.getSelectedFile();
-            savePath = selectedFile.getParent() + "/Запись в аршин." + LocalDate.now()
-                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "/";
+            savePath = selectedFile.getParent() + "\\Запись в аршин." + LocalDate.now()
+                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\\";
             logMessage("Выбран файл: " + selectedFile.getName());
-            logMessage("Выбрана папка для сохранения: " + savePath);
+            logMessage("Результат сохранится в: " + savePath);
             saveButton.setEnabled(true);
             processButton.setEnabled(true);
 
@@ -110,7 +112,8 @@ public class GUI extends JFrame {
 
 
         if (dirChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            savePath = dirChooser.getSelectedFile().toPath().toString();
+            savePath = dirChooser.getSelectedFile().toPath().toString() + "\\Запись в аршин." + LocalDate.now()
+                    .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\\";
             logMessage("Выбрана папка для сохранения: " + savePath);
 
         }

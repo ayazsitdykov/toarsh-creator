@@ -3,12 +3,12 @@ package com.example.springApp.services;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.KeyMeter;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 
 import java.io.FileOutputStream;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Map;
 
 
@@ -57,6 +57,9 @@ public class ExcelWriter {
             row0.createCell(cellNum).setCellValue("Адрес");
 
             */
+            CellStyle dateCellStyle = wb.createCellStyle();
+            CreationHelper createHelper = wb.getCreationHelper();
+            dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("dd.MM.yyyy"));
 
                 for (IPU ipu : waterMeterList.values()) {
                     Row row = sheet.createRow(rowNum++);
@@ -66,8 +69,17 @@ public class ExcelWriter {
                     row.createCell(i++).setCellValue(ipu.getModification());
                     row.createCell(i++).setCellValue(ipu.getSignCipher());
                     row.createCell(i++).setCellValue(ipu.getOwner());
-                    row.createCell(i++).setCellValue(ipu.getVrfDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
-                    row.createCell(i++).setCellValue(ipu.getValidDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
+
+                    Cell cell = row.createCell(i++);
+                    cell.setCellValue(ipu.getVrfDate());
+                    cell.setCellStyle(dateCellStyle);
+
+                    cell = row.createCell(i++);
+                    cell.setCellValue(ipu.getValidDate());
+                    cell.setCellStyle(dateCellStyle);
+
+
+
                     row.createCell(i++).setCellValue(2);
                     row.createCell(i++).setCellValue(String.valueOf(false));
                     row.createCell(i++).setCellValue(String.valueOf(false));
@@ -101,5 +113,7 @@ public class ExcelWriter {
             e.printStackTrace();
         }
     }
+
+
 }
 
