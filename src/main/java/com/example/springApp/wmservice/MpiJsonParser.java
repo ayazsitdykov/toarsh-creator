@@ -51,16 +51,31 @@ public class MpiJsonParser {
                         String serviceKey = serviceEntry.getKey();
                         JsonNode serviceValue = serviceEntry.getValue();
 
+
                         if (serviceValue.isArray()) {
                             // Обработка массивов
-                            List<Integer> values = new ArrayList<>();
+                            List<Object> valuesDate = new ArrayList<>();
+
                             for (JsonNode item : serviceValue) {
-                                values.add(item.asInt());
+                                if (item.isTextual()) { //добавление массива типов
+                                    valuesDate.add(item.textValue());
+                                }
+                                if (item.isNumber()) { //добавление массива МПИ
+                                    valuesDate.add(item.asInt());
+                                }
+
                             }
-                            serviceMap.put(serviceKey, values);
+                            serviceMap.put(serviceKey, valuesDate);
+
                         } else {
-                            // Обработка одиночных значений
-                            serviceMap.put(serviceKey, serviceValue.asInt());
+                            if (serviceKey.equals("МПИ")) {
+                                serviceMap.put("ГВС", serviceValue.intValue());
+                                serviceMap.put("ХВС", serviceValue.intValue());
+
+                            } else {
+                                // Обработка одиночных значений
+                                serviceMap.put(serviceKey, serviceValue.asInt());
+                            }
                         }
                     }
                     regFifList.put(key, serviceMap);

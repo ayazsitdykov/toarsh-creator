@@ -2,9 +2,8 @@ package com.example.springApp.wmservice;
 
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.KeyMeter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,6 @@ public class ErrorChecking {
     Map<KeyMeter, IPU> waterMeterList;
     Map<String, Object> regFifList;
     public boolean hasError = false;
-    Logger logger = LoggerFactory.getLogger(ErrorChecking.class);
 
     public ErrorChecking(Map<KeyMeter, IPU> waterMeterList, Object regFifList) {
 
@@ -30,58 +28,57 @@ public class ErrorChecking {
         if (waterMeterList == null) {
             hasError = true;
         } else {
+            @SuppressWarnings("unchecked")
+            List<String> stopList = (List<String>) regFifList.get("stop"); //проверка стоп-листа
             waterMeterList.forEach((key, value) -> {
-
                 String manufactureNumber = value.getManufactureNum();
                 String regNumber = value.getMitypeNumber();
-
                 ArrayList<Integer> mpi = new ArrayList<>();
 
-
                 try {
-                    @SuppressWarnings("unchecked")
-                    List<String> stopList = (List<String>) regFifList.get("stop"); //проверка стоп-листа
                     if (stopList.contains(regNumber)) {
                         printMessage(manufactureNumber, "не поверяется по МИ1599-15");
-                        mpi.add(-1);
-
+                        return;
                     }
 
-                    if (regFifList.get(regNumber) instanceof Integer) {
-                        int equalMpi = (Integer) regFifList.get(regNumber);
-                        mpi.add(equalMpi);
-                    } else if (regFifList.get(regNumber) instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> siData = (Map<String, Object>) regFifList.get(regNumber);
+
+                    //                   @SuppressWarnings("unchecked")
+//                    List<String> typeValues = (List<String>) siData.get("ТИП");
+//
+//                    if (!typeValues.contains(value.getModification())) {
+//                        printMessage(manufactureNumber, "Неправильный тип счетчика");
+//                    }
+
+                    if (siData.get("ГВС") instanceof List) {
                         @SuppressWarnings("unchecked")
-                        Map<String, Object> hotArray = (Map<String, Object>) regFifList.get(regNumber);
-                        if (hotArray.get("ГВС") instanceof List) {
-                            @SuppressWarnings("unchecked")
-                            List<Integer> gvsValues = (List<Integer>) hotArray.get("ГВС");
-                            @SuppressWarnings("unchecked")
-                            List<Integer> hvsValues = (List<Integer>) hotArray.get("ХВС");
+                        List<Integer> gvsValues = (List<Integer>) siData.get("ГВС");
+                        @SuppressWarnings("unchecked")
+                        List<Integer> hvsValues = (List<Integer>) siData.get("ХВС");
+                        mpi.addAll(value.isHot() ? gvsValues : hvsValues);
 
-                            mpi.addAll(value.isHot() ? gvsValues : hvsValues);
+                    } else {
+                        @SuppressWarnings("unchecked")
+                        Map<String, ?> mpiValues = (Map<String, ?>) regFifList.get(regNumber);
 
-
-                        } else {
-                            @SuppressWarnings("unchecked")
-                            Map<String, Integer> mpiValues = (Map<String, Integer>) regFifList.get(regNumber);
-                            if (value.isHot()) {
-                                if (!mpiValues.containsKey("ГВС")) {
-                                    printMessage(manufactureNumber, "Не используется для ГВС");
-                                    mpi.add(-1);
-                                } else {
-                                    mpi.add(mpiValues.get("ГВС"));
-                                }
+                        if (value.isHot()) {
+                            if (!mpiValues.containsKey("ГВС")) {
+                                //проверка госреестров счетчиков, которые используются только для ГВС
+                                printMessage(manufactureNumber, "Не используется для ГВС");
+                                return;
                             } else {
-                                if (!mpiValues.containsKey("ХВС")) {
-                                    printMessage(manufactureNumber, "Не используется для XВС");
-                                    mpi.add(-1);
-                                } else {
-                                    mpi.add(mpiValues.get("ХВС"));
-                                }
+                                mpi.add((Integer) mpiValues.get("ГВС"));
+
                             }
-
-
+                        } else {
+                            if (!mpiValues.containsKey("ХВС")) {
+                                //проверка госреестров счетчиков, которые используются только для ХВС
+                                printMessage(manufactureNumber, "Не используется для XВС");
+                                return;
+                            } else {
+                                mpi.add((Integer) mpiValues.get("ХВС"));
+                            }
                         }
 
 
@@ -108,9 +105,17 @@ public class ErrorChecking {
                 }
 
 
-                if (!mpi.contains(-1) && !isDateCorrect && !mpi.isEmpty()) {
+                if (value.getVrfDate().equals(LocalDate.EPOCH) ||
+                        value.getValidDate().equals(LocalDate.EPOCH)) {
+                    printMessage(manufactureNumber, "Проверьте формат даты");
+                    return;
+                    // проверяем что даты не равны 1 января 1970
+                }
 
-                    printMessage(value.getManufactureNum(), "Несоответствие дат МПИ");
+
+                if (!isDateCorrect && !mpi.isEmpty()) {
+
+                    printMessage(manufactureNumber, "Несоответствие дат МПИ");
 
 
                 }
@@ -122,8 +127,6 @@ public class ErrorChecking {
         }
         return stringBuilder;
     }
-
-
 
 
     public void printMessage(String number, String message) {

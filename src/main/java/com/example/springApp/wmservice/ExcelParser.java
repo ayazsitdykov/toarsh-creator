@@ -102,7 +102,7 @@ public class ExcelParser {
 
     private LocalDate getDateCell(Cell cell) {
         if (!cell.getCellType().name().equals("NUMERIC")) {
-            return LocalDate.of(1970,1,1);
+            return LocalDate.of(1970,1,1);// если запись в ячейке не в виде даты, записывем в Map 1 янв 1970
         }
 
         return cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -116,7 +116,7 @@ public class ExcelParser {
         }
 
         if (cell.getCellType().name().equals("NUMERIC")) {
-            System.out.println(cell.getCellType().name());
+
 
             String str = String.valueOf(cell.getNumericCellValue()).replace(".", "")
                     .replace("E7", "");
