@@ -48,7 +48,8 @@ public class ErrorChecking {
                     List<String> typeValues = (List<String>) siData.get("ТИП");
 
                     if (!typeValues.contains(value.getModification())) {
-                        printMessage(manufactureNumber, "Неправильный тип счетчика");
+                        printMessage(manufactureNumber, "Неправильный тип счетчика \n"
+                               + "Возможные типы: " + typeValues);
                     }
 
                     if (siData.get("ГВС") instanceof List) {

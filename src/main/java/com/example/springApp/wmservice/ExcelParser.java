@@ -119,7 +119,7 @@ public class ExcelParser {
 
 
             String str = String.valueOf(cell.getNumericCellValue()).replace(".", "")
-                    .replace("E7", "");
+                    .split("E")[0];
             return str;
         }
 
