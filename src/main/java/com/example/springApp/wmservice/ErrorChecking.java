@@ -44,12 +44,12 @@ public class ErrorChecking {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> siData = (Map<String, Object>) regFifList.get(regNumber);
 
-                    //                   @SuppressWarnings("unchecked")
-//                    List<String> typeValues = (List<String>) siData.get("ТИП");
-//
-//                    if (!typeValues.contains(value.getModification())) {
-//                        printMessage(manufactureNumber, "Неправильный тип счетчика");
-//                    }
+                    @SuppressWarnings("unchecked")
+                    List<String> typeValues = (List<String>) siData.get("ТИП");
+
+                    if (!typeValues.contains(value.getModification())) {
+                        printMessage(manufactureNumber, "Неправильный тип счетчика");
+                    }
 
                     if (siData.get("ГВС") instanceof List) {
                         @SuppressWarnings("unchecked")
