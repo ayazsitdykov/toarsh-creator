@@ -18,6 +18,7 @@ import java.util.Map;
 
 public class XMLWriter {
 
+    public String xmlResult="";
     public void toArchWriter(Map<KeyMeter, IPU> waterMeterList, String filePath, String savePath) {
 
         String fileName = filePath.substring(0, filePath.lastIndexOf('.')); //убираем расширение из названия
@@ -175,7 +176,7 @@ public class XMLWriter {
 
             transformer.transform(source, result);
 
-            System.out.println("Создан файл \"" + fileName + ".xml\"");
+            xmlResult = "Создан файл \"" + fileName + ".xml\"";
         } catch (ParserConfigurationException | TransformerException e) {
             e.printStackTrace();
         }

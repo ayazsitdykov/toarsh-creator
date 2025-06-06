@@ -138,8 +138,12 @@ public class GUI extends JFrame {
 
                 // String savePath = "C:/Users/a.sitdykov/Desktop/project/result/"; // путь сохранения файлов XML и Excel
 
-                Map<KeyMeter, IPU> waterMeterList = new ExcelParser().parse(filePath);
-
+                ExcelParser parser = new ExcelParser();
+                Map<KeyMeter, IPU> waterMeterList = parser.parse(filePath);
+                if (!parser.parsingResult.isEmpty()) {
+                    logMessage(parser.parsingResult);
+                }
+                if (waterMeterList != null) {
                 publish("Проверка ошибок...");
 
                 Map<String, Object> regFifList = new MpiJsonParser("regFif.json").regFifList;
@@ -154,13 +158,19 @@ public class GUI extends JFrame {
 
                 if (!ec.hasError) {
 
-                    System.out.println("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
+                    logMessage("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
                     new CreatorParameters().paramCreate(waterMeterList);
 
 
                     publish("Запись файлов...");
-                    new XMLWriter().toArchWriter(waterMeterList, fileName, savePath);
-                    new ExcelWriter().exelCreator(waterMeterList, fileName, savePath);
+                    XMLWriter xmlWriter = new XMLWriter();
+                    xmlWriter.toArchWriter(waterMeterList, fileName, savePath);
+                    logMessage(xmlWriter.xmlResult);
+
+                    ExcelWriter excelWriter = new ExcelWriter();
+                    excelWriter.exelCreator(waterMeterList, fileName, savePath);
+                    logMessage(excelWriter.excelResult);
+                }
 
 
                 }
@@ -196,6 +206,7 @@ public class GUI extends JFrame {
 
     private void logMessage(String message) {
         SwingUtilities.invokeLater(() -> {
+            logArea.setForeground(Color.CYAN);
             logArea.append("[" + java.time.LocalTime.now() + "] " + message + "\n");
             // Auto-scroll to bottom
             logArea.setCaretPosition(logArea.getDocument().getLength());

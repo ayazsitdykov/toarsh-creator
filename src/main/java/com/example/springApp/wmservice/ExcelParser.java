@@ -7,18 +7,17 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-
-
 import java.io.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExcelParser {
+
+    public String parsingResult = "";
     String addressInMemory = "Ул. Ленина, " + (new Random().nextInt(100) + 50)
             + " - " + (new Random().nextInt(5) + 10);
     //Если в файле отсутсвует адрес в 1 строчке-устанавливаем это значение
@@ -41,13 +40,14 @@ public class ExcelParser {
                         continue;
                     }
 
-                    System.out.println("Выбран некорректный файл excel");
-                    break;
+                    parsingResult = "Выбран некорректный файл excel";
+                    return null; //возвращаем null,
 
                 }
 
 
-                if (row.getCell(0) == null || !row.getCell(0).getCellType().name().equals("STRING")) { //прерываем цикл, если в первой ячейке строчки не строка
+                if (row.getCell(0) == null || !row.getCell(0).getCellType().name().equals("STRING")) {
+                    //прерываем цикл, если в первой ячейке строчки не строка
                     break;
 
                 }
@@ -67,7 +67,7 @@ public class ExcelParser {
                 KeyMeter key = new KeyMeter(waterMeter.getManufactureNum(), waterMeter.getVrfDate());
 
                 if (isMeterExist(key)) {
-                    System.out.println("Счетчик с номером " + key.getNumber() + " встречается повторно!");
+                    parsingResult = "Счетчик с номером " + key.getNumber() + " встречается повторно!";
                     return null; //возвращаем объект null, если счетчики повторяются
                 }
                 waterMeterList.put(key, waterMeter);
@@ -97,12 +97,13 @@ public class ExcelParser {
                 .toLowerCase().trim()
                 .matches("юл|юр\\.?\\s?лицо|юр лицо|юридическое лицо");
 
-        return isCompany ? "Юридическое лицо" : "Физическое лицо";   }
+        return isCompany ? "Юридическое лицо" : "Физическое лицо";
+    }
 
 
     private LocalDate getDateCell(Cell cell) {
         if (!cell.getCellType().name().equals("NUMERIC")) {
-            return LocalDate.of(1970,1,1);// если запись в ячейке не в виде даты, записывем в Map 1 янв 1970
+            return LocalDate.of(1970, 1, 1);// если запись в ячейке не в виде даты, записывем в Map 1 янв 1970
         }
 
         return cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -118,9 +119,8 @@ public class ExcelParser {
         if (cell.getCellType().name().equals("NUMERIC")) {
 
 
-            String str = String.valueOf(cell.getNumericCellValue()).replace(".", "")
+            return String.valueOf(cell.getNumericCellValue()).replace(".", "")
                     .split("E")[0];
-            return str;
         }
 
 
@@ -172,6 +172,11 @@ public class ExcelParser {
     }
 
     private boolean isFileCorrect(Row row) {
+        if (row.getCell(0) == null || row.getCell(5) == null
+                || !row.getCell(0).getCellType().name().equals("STRING")
+                || !row.getCell(5).getCellType().name().equals("STRING")) {
+            return false;
+        }
         String firstColumnName = row.getCell(0).getStringCellValue();
         String secondColumnName = row.getCell(5).getStringCellValue();
 

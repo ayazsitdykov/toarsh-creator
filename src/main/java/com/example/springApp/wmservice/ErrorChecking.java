@@ -25,116 +25,121 @@ public class ErrorChecking {
 
     public StringBuilder errorChecking() {
 
-        if (waterMeterList == null) {
-            hasError = true;
-        } else {
-            @SuppressWarnings("unchecked")
-            List<String> stopList = (List<String>) regFifList.get("stop"); //проверка стоп-листа
-            waterMeterList.forEach((key, value) -> {
-                String manufactureNumber = value.getManufactureNum();
-                String regNumber = value.getMitypeNumber();
-                ArrayList<Integer> mpi = new ArrayList<>();
+        @SuppressWarnings("unchecked")
+        List<String> stopList = (List<String>) regFifList.get("stop"); //проверка стоп-листа
+        waterMeterList.forEach((key, value) -> {
+            String manufactureNumber = value.getManufactureNum();
+            String regNumber = value.getMitypeNumber();
+            LocalDate vrfDate = value.getVrfDate();
+            LocalDate validDate = value.getValidDate();
+            LocalDate nowDate = LocalDate.now();
+            ArrayList<Integer> mpi = new ArrayList<>();
 
-                try {
-                    if (stopList.contains(regNumber)) {
-                        printMessage(manufactureNumber, "не поверяется по МИ1599-15");
-                        return;
-                    }
-
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> siData = (Map<String, Object>) regFifList.get(regNumber);
-
-                    @SuppressWarnings("unchecked")
-                    List<String> typeValues = (List<String>) siData.get("ТИП");
-
-                    if (!typeValues.contains(value.getModification())) {
-                        printMessage(manufactureNumber, "Неправильный тип счетчика \n"
-                               + "Возможные типы: " + typeValues);
-                    }
-
-                    if (siData.get("ГВС") instanceof List) {
-                        @SuppressWarnings("unchecked")
-                        List<Integer> gvsValues = (List<Integer>) siData.get("ГВС");
-                        @SuppressWarnings("unchecked")
-                        List<Integer> hvsValues = (List<Integer>) siData.get("ХВС");
-                        mpi.addAll(value.isHot() ? gvsValues : hvsValues);
-
-                    } else {
-                        @SuppressWarnings("unchecked")
-                        Map<String, ?> mpiValues = (Map<String, ?>) regFifList.get(regNumber);
-
-                        if (value.isHot()) {
-                            if (!mpiValues.containsKey("ГВС")) {
-                                //проверка госреестров счетчиков, которые используются только для ГВС
-                                printMessage(manufactureNumber, "Не используется для ГВС");
-                                return;
-                            } else {
-                                mpi.add((Integer) mpiValues.get("ГВС"));
-
-                            }
-                        } else {
-                            if (!mpiValues.containsKey("ХВС")) {
-                                //проверка госреестров счетчиков, которые используются только для ХВС
-                                printMessage(manufactureNumber, "Не используется для XВС");
-                                return;
-                            } else {
-                                mpi.add((Integer) mpiValues.get("ХВС"));
-                            }
-                        }
-
-
-                    }
-
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-
-
-                }
-
-                if (mpi.isEmpty()) {
-                    printMessage(value.getManufactureNum(), "Рег номер - " + value.getMitypeNumber() + " - не найден в базе");
-                }
-
-                boolean isDateCorrect = false;
-                for (int year : mpi) {
-                    if (value.getVrfDate().plusYears(year).minusDays(1)
-                            .equals(value.getValidDate())) {
-                        isDateCorrect = true;
-                        break;
-                    }
-                }
-
-
-                if (value.getVrfDate().equals(LocalDate.EPOCH) ||
-                        value.getValidDate().equals(LocalDate.EPOCH)) {
-                    printMessage(manufactureNumber, "Проверьте формат даты");
+            try {
+                if (stopList.contains(regNumber)) {
+                    printFaultMessage(manufactureNumber, "не поверяется по МИ1599-15");
                     return;
-                    // проверяем что даты не равны 1 января 1970
+                }
+
+                @SuppressWarnings("unchecked")
+                Map<String, Object> siData = (Map<String, Object>) regFifList.get(regNumber);
+
+                @SuppressWarnings("unchecked")
+                List<String> typeValues = (List<String>) siData.get("ТИП");
+
+                if (!typeValues.contains(value.getModification())) {
+                    printFaultMessage(manufactureNumber, "Неправильный тип счетчика \n"
+                            + "Возможные типы: " + typeValues);
+                }
+
+                if (siData.get("ГВС") instanceof List) {
+                    @SuppressWarnings("unchecked")
+                    List<Integer> gvsValues = (List<Integer>) siData.get("ГВС");
+                    @SuppressWarnings("unchecked")
+                    List<Integer> hvsValues = (List<Integer>) siData.get("ХВС");
+                    mpi.addAll(value.isHot() ? gvsValues : hvsValues);
+
+                } else {
+                    @SuppressWarnings("unchecked")
+                    Map<String, ?> mpiValues = (Map<String, ?>) regFifList.get(regNumber);
+
+                    if (value.isHot()) {
+                        if (!mpiValues.containsKey("ГВС")) {
+                            //проверка госреестров счетчиков, которые используются только для ГВС
+                            printFaultMessage(manufactureNumber, "Не используется для ГВС");
+                            return;
+                        } else {
+                            mpi.add((Integer) mpiValues.get("ГВС"));
+
+                        }
+                    } else {
+                        if (!mpiValues.containsKey("ХВС")) {
+                            //проверка госреестров счетчиков, которые используются только для ХВС
+                            printFaultMessage(manufactureNumber, "Не используется для XВС");
+                            return;
+                        } else {
+                            mpi.add((Integer) mpiValues.get("ХВС"));
+                        }
+                    }
+
+
                 }
 
 
-                if (!isDateCorrect && !mpi.isEmpty()) {
+            } catch (Exception ex) {
+                ex.printStackTrace();
 
-                    printMessage(manufactureNumber, "Несоответствие дат МПИ");
+
+            }
+
+            if (mpi.isEmpty()) {
+                printFaultMessage(value.getManufactureNum(), "Рег номер - " + value.getMitypeNumber() + " - не найден в базе");
+            }
+
+            if (vrfDate.equals(LocalDate.EPOCH) ||
+                    validDate.equals(LocalDate.EPOCH) // проверяем что даты не равны 1 января 1970
+                    || nowDate.isBefore(vrfDate) // не вносятся будущим числом
+                    || nowDate.minusYears(1).isAfter(vrfDate)) { // не вносятся счетчики, поверенные более года назад
+            printFaultMessage(manufactureNumber, "Проверьте даты");
+            return;
+
+        }
 
 
-                }
-
-            });
-            if (!hasError) {
-                stringBuilder.append("Файл прочитан - ошибок не обнаружено");
+        boolean isDateCorrect = false;
+        for (int year : mpi) {
+            if (value.getVrfDate().plusYears(year).minusDays(1)
+                    .equals(value.getValidDate())) {
+                isDateCorrect = true;
+                break;
             }
         }
-        return stringBuilder;
+
+
+        if (!isDateCorrect && !mpi.isEmpty()) {
+
+            printFaultMessage(manufactureNumber, "Несоответствие дат МПИ");
+
+
+        }
+
+    });
+        if(!hasError)
+
+    {
+        stringBuilder.append("Файл прочитан - ошибок не обнаружено");
     }
 
+        return stringBuilder;
+}
 
-    public void printMessage(String number, String message) {
+
+    private void printFaultMessage(String number, String message) {
         hasError = true;
 
         stringBuilder.append("Счетчик с номером " + number + " - " + message + "\n");
 
-        System.out.println("Счетчик с номером " + number + " - " + message);
     }
+
+
 }

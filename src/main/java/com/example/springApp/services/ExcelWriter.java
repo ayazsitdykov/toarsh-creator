@@ -14,6 +14,7 @@ import java.util.Map;
 
 public class ExcelWriter {
 
+    public String excelResult = "";
     public void exelCreator(Map<KeyMeter, IPU> waterMeterList, String fileName, String savePath) {
 
 
@@ -106,7 +107,7 @@ public class ExcelWriter {
                 sheet.autoSizeColumn(i);
             }
             wb.write(out);
-            System.out.println("Создан файл \"" + fileNameFormat + ".xls\"");
+            excelResult = "Создан файл \"" + fileNameFormat + ".xls\"";
 
 
         } catch (Exception e) {
