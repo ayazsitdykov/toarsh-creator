@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Formatter;
 import java.util.Map;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -27,7 +26,7 @@ public class GUI extends JFrame {
     private JProgressBar progressBar;
     private File selectedFile;
     private String savePath;
-    private JFileChooser fileChooser = new JFileChooser();
+    private final JFileChooser fileChooser = new JFileChooser();
 
     public GUI() {
         setTitle("Формирование XML в аршин");
@@ -112,7 +111,7 @@ public class GUI extends JFrame {
 
 
         if (dirChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-            savePath = dirChooser.getSelectedFile().toPath().toString() + "\\Запись в аршин." + LocalDate.now()
+            savePath = dirChooser.getSelectedFile().toPath() + "\\Запись в аршин." + LocalDate.now()
                     .format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\\";
             logMessage("Выбрана папка для сохранения: " + savePath);
 
@@ -206,7 +205,7 @@ public class GUI extends JFrame {
 
     private void logMessage(String message) {
         SwingUtilities.invokeLater(() -> {
-            logArea.setForeground(Color.CYAN);
+           // logArea.setForeground(Color.black);
             logArea.append("[" + java.time.LocalTime.now() + "] " + message + "\n");
             // Auto-scroll to bottom
             logArea.setCaretPosition(logArea.getDocument().getLength());

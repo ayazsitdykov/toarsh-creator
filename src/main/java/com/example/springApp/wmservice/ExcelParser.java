@@ -10,10 +10,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class ExcelParser {
 
@@ -135,40 +137,26 @@ public class ExcelParser {
             //если ячейка пустая-возвращаем последнее значение записанное в addressInMemory;
             return addressInMemory;
         }
-        String formatted = address.trim()
+        String replased = address.trim().toLowerCase()
                 .replaceAll("[Уу]лица", "Ул.")
                 .replaceAll("[Пп]роспект", "Пр.")
                 .replaceAll("\\bд\\.|дом\\b|корп\\.|к\\.|строение\\b|стр\\.", "")
                 .replaceAll("\\s+", " ")
                 .replaceAll("\\s*,\\s*", " ")
-                .replaceAll("\\s*/\\s*", "/");
-        Pattern pattern = Pattern.compile(
-                "^([Уу][Лл]\\.|[Пп][Рр]\\.|[Пп][Ее][Рр]\\.)?\\s*([А-Яа-яЁё-]+)\\s*(\\d+[А-Яа-яЁё]?)(?:\\s*[-–—]\\s*(\\d+[А-Яа-яЁё]?))?.*$"
-        );
-        Matcher matcher = pattern.matcher(formatted);
-        if (matcher.matches()) {
+                .replaceAll("\\s*/\\s*", "/")
+                .replaceAll("(\\D)(?<! )(\\d)", "$1 $2")
+                .replaceAll("(\\d)(?<! )(\\D)", "$1 $2")
+                .replaceAll("сибирека", "сибиряка")
+                .replaceAll("8марта", "8 марта")
+                .replaceAll("40летоктября", "40 лет октября");
+        String splitPoint = Arrays.stream(replased.split("\\."))
+                .map(s -> s.isEmpty() ? s : s.substring(0, 1).toUpperCase() + s.substring(1))
+                .collect(Collectors.joining("."));
+        addressInMemory = Arrays.stream(splitPoint.split(" "))
+                .map(s -> s.isEmpty() ? s : s.substring(0, 1).toUpperCase() + s.substring(1))
+                .collect(Collectors.joining(" "));
 
-            String streetType = matcher.group(1) != null ?
-                    matcher.group(1).replaceAll("[уУ][Лл]\\.", "Ул.").replaceAll("[пП][Рр]\\.", "Пр.")
-                            .replaceAll("[Пп][Ее][Рр]\\.", "Пер.") : "Ул.";
-
-            String sName = (matcher.group(2).trim());
-            String streetName = sName.substring(0, 1).toUpperCase() + sName.substring(1).toLowerCase();
-            String startNumber = matcher.group(3);
-            String endNumber = matcher.group(4);
-
-            // 3. Собираем отформатированный адрес
-            if (endNumber != null && !endNumber.isEmpty()) {
-                addressInMemory = String.format("%s %s %s - %s", streetType, streetName, startNumber, endNumber);
-                return addressInMemory;
-            } else {
-                addressInMemory = String.format("%s %s %s", streetType, streetName, startNumber);
-                return addressInMemory;
-            }
-        }
-
-        return address;
-        // если значение не подходит под шаблон-возвращаем без именений
+        return addressInMemory;
     }
 
     private boolean isFileCorrect(Row row) {
