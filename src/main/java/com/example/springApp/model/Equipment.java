@@ -17,15 +17,23 @@ public class Equipment {
     private String typeNumTl;
     private String manufactureNumTl;
 
+    private String fulName;
+    private String snils;
+
+
     @Override
     public String toString() {
-        return "metrologist='" + metrologist + '\'' +
+        return "Equipment{" +
+                "metrologist='" + metrologist + '\'' +
                 ", numberUpsz='" + numberUpsz + '\'' +
                 ", typeNumIntegral='" + typeNumIntegral + '\'' +
                 ", manufactureNumIntegral='" + manufactureNumIntegral + '\'' +
                 ", typeNumIva='" + typeNumIva + '\'' +
                 ", manufactureNumIva='" + manufactureNumIva + '\'' +
                 ", typeNumTl='" + typeNumTl + '\'' +
-                ", manufactureNumTl='" + manufactureNumTl + '\'';
+                ", manufactureNumTl='" + manufactureNumTl + '\'' +
+                ", fulName='" + fulName + '\'' +
+                ", snils='" + snils + '\'' +
+                '}';
     }
 }

@@ -7,7 +7,9 @@
     "typeNumIva": "46434-11",
     "manufactureNumIva": "17106",
     "typeNumTl": "299-11",
-    "manufactureNumTl": "9"
+    "manufactureNumTl": "9",
+    "fulName" : "Невьянцев Олег Васильевич",
+    "snils" : "01306773114"
   },
   {
     "metrologist": "Клышников Е. А.",
@@ -17,7 +19,9 @@
     "typeNumIva": "46434-11",
     "manufactureNumIva": "17107",
     "typeNumTl": "299-11",
-    "manufactureNumTl": "23"
+    "manufactureNumTl": "23",
+    "fulName" : "Клышников Евгений Александрович",
+    "snils" : "12979309104"
   },
   {
     "metrologist": "Ситдыков Р. Н.",
@@ -27,7 +31,9 @@
     "typeNumIva": "46434-11",
     "manufactureNumIva": "4e45",
     "typeNumTl": "299-11",
-    "manufactureNumTl": "99"
+    "manufactureNumTl": "99",
+    "fulName" : "Ситдыков Руслан Нуриханович",
+    "snils" : "11411273394"
   },
   {
     "metrologist": "Ситдыков А. А.",
@@ -37,7 +43,9 @@
     "typeNumIva": "46434-11",
     "manufactureNumIva": "21435",
     "typeNumTl": "299-11",
-    "manufactureNumTl": "18"
+    "manufactureNumTl": "18",
+    "fulName" : "Ситдыков Анвар Альтафович",
+    "snils" : "11392051119"
   },
   {
     "metrologist": "Калугин И. А.",
@@ -47,7 +55,9 @@
     "typeNumIva": "46434-11",
     "manufactureNumIva": "21436",
     "typeNumTl": "299-11",
-    "manufactureNumTl": "171"
+    "manufactureNumTl": "171",
+    "fulName" : "Калугин Иван Александрович",
+    "snils" : "09617746611"
   },
   {
     "metrologist": "Десятов К. О.",
@@ -57,6 +67,8 @@
     "typeNumIva": "82393-21",
     "manufactureNumIva": "22684",
     "typeNumTl": "299-11",
-    "manufactureNumTl": "160"
+    "manufactureNumTl": "160",
+    "fulName" : "Десятов Константин Олегович",
+    "snils" : "17617366998"
   }
 ]
