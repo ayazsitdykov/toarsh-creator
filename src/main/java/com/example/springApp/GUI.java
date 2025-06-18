@@ -1,11 +1,15 @@
 package com.example.springApp;
 
+import com.example.springApp.FSAservice.ComplExcelParser;
+import com.example.springApp.FSAservice.FromFgisParser;
+import com.example.springApp.FSAservice.MergeFiles;
 import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.KeyMeter;
+import com.example.springApp.model.RegistredMeter;
 import com.example.springApp.services.ExcelWriter;
 import com.example.springApp.services.XMLWriter;
-import com.example.springApp.wmservice.*;
+import com.example.springApp.FGISservice.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -304,9 +308,21 @@ public class GUI extends JFrame {
             @Override
             protected Void doInBackground() throws Exception {
                 publish("Чтение файла...");
-                String filePath = selectedCompiledFile.getAbsolutePath();
-                String fileName = filePath.substring(filePath.lastIndexOf('\\') + 1);
+                String filePathCF = selectedCompiledFile.getAbsolutePath(); // Путь к итоговому файлу за месяц
+                String filePathFF = selectedFileFromFgis.getAbsolutePath(); // Путь к файлу из Аршина
 
+                String fileName = filePathCF.substring(filePathCF.lastIndexOf('\\') + 1);
+
+
+                List<RegistredMeter> registredMetersCF = new ComplExcelParser().parser(filePathCF);
+                // Парсинг итогового файла
+                List<RegistredMeter> registredMetersFF = new FromFgisParser().parser(filePathFF);
+                //Парсинг файла из Аршина
+
+           //     new MergeFiles().merge(registredMetersCF, registredMetersFF); //Слияние файлов в registredMetersCF
+               for (RegistredMeter m : registredMetersCF) {
+                   System.out.println(m.toString());
+               }
 
 
                 return null;

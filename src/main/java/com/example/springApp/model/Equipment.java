@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-@Getter
 @Setter
+@Getter
 public class Equipment {
     private String metrologist;
     private String numberUpsz;
@@ -19,6 +19,7 @@ public class Equipment {
 
     private String fulName;
     private String snils;
+
 
 
     @Override

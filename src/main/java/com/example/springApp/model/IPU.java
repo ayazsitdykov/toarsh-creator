@@ -66,6 +66,7 @@ public class IPU {
                 ", manufactureNumTl='" + manufactureNumTl + '\'' +
                 '}';
     }
+
 }
 
 
