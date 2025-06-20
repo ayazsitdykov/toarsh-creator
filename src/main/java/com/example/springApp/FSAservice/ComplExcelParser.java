@@ -12,9 +12,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ComplExcelParser {
     List<RegistredMeter> registredMeters = new ArrayList<>();
@@ -35,12 +38,12 @@ public class ComplExcelParser {
 
                 RegistredMeter registredMeter = new RegistredMeter();
 
-                registredMeter.setManufactureNum(getStringCell(row.getCell(1)));
+                registredMeter.setManufactureNum(getManufactureNum(row.getCell(1)));
                 registredMeter.setTypeMeasuringInstrument(getStringCell(row.getCell(2)));
-                registredMeter.setDateVerification(row.getCell(5)
-                        .getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-                registredMeter.setDateEndVerification(row.getCell(6)
-                        .getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                registredMeter.setDateVerification(getDate(row.getCell(5)));
+
+                registredMeter.setDateEndVerification(getDate(row.getCell(6)));
+
                 writeFioSnils(registredMeter, getStringCell(row.getCell(12)));
 
 
@@ -54,6 +57,39 @@ public class ComplExcelParser {
         }
 
         return registredMeters;
+    }
+
+    private String getManufactureNum(Cell cell) {
+
+        String str = "";
+
+        if (cell.getCellType().name().equals("STRING")) {
+            str = getStringCell(cell);
+        }
+
+        if (cell.getCellType().name().equals("NUMERIC")) {
+            str = (String.valueOf(cell.getNumericCellValue())).replaceAll("E7", "")
+                    .replaceAll("\\.", "");
+        }
+        return str;
+    }
+
+    private LocalDate getDate(Cell cell) {
+        LocalDate localDate = null;
+
+        if (cell.getCellType().name().equals("STRING")) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            localDate = LocalDate.parse(cell.getStringCellValue(), formatter);
+
+        }
+
+        if (cell.getCellType().name().equals("NUMERIC")) {
+            localDate = cell.getDateCellValue().toInstant()
+                    .atZone(ZoneId.systemDefault()).toLocalDate();
+
+        }
+
+        return localDate;
     }
 
     private String getStringCell(Cell cell) {

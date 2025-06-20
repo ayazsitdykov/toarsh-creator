@@ -40,7 +40,8 @@ public class XMLWriter {
 
             // Создаем корневой элемент
             Element rootElement = doc.createElementNS(
-                    "urn://fgis-arshin.gost.ru/module-verifications/import/2020-06-19", "ns1:application");
+                    "urn://fgis-arshin.gost.ru/module-verifications/import/2020-06-19",
+                    "ns1:application");
 //            rootElement.setAttributeNS(
 //                    "http://www.w3.org/2001/XMLSchema-instance", "xsi:schemaLocation",
 //                    "urn://fgis-arshin.gost.ru/module-verifications/import/2020-06-19");

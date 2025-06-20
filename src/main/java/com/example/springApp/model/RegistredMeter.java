@@ -22,7 +22,9 @@ public class RegistredMeter {
     private boolean resultVerification;
 
 
-
+    public boolean isResultVerification() {
+        return resultVerification;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -2,6 +2,7 @@ package com.example.springApp;
 
 import com.example.springApp.FSAservice.ComplExcelParser;
 import com.example.springApp.FSAservice.FromFgisParser;
+import com.example.springApp.FSAservice.FsaXmlWriter;
 import com.example.springApp.FSAservice.MergeFiles;
 import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
@@ -319,10 +320,19 @@ public class GUI extends JFrame {
                 List<RegistredMeter> registredMetersFF = new FromFgisParser().parser(filePathFF);
                 //Парсинг файла из Аршина
 
-           //     new MergeFiles().merge(registredMetersCF, registredMetersFF); //Слияние файлов в registredMetersCF
-               for (RegistredMeter m : registredMetersCF) {
-                   System.out.println(m.toString());
-               }
+                MergeFiles mergeFiles = new MergeFiles(registredMetersCF, registredMetersFF);
+                mergeFiles.merge();
+                //Слияние файлов в registredMetersCF
+                logMessage("Прочитан файл содержащий " + registredMetersCF.size() + " счетчиков");
+                logMessage(mergeFiles.erMessage);
+                FsaXmlWriter fsaXmlWriter = new FsaXmlWriter(registredMetersCF);
+                if (!mergeFiles.hasError) {
+
+                    String fileNameFsa = registredMetersCF.get(0).getDateVerification().getMonth().name().toLowerCase() + "_to_FSA";
+
+                    fsaXmlWriter.create(saveToFsaPath, fileNameFsa);
+                }
+
 
 
                 return null;
