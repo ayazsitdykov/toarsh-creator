@@ -9,7 +9,7 @@ public class MergeFiles {
     public List<RegistredMeter> comFile;
     public List<RegistredMeter> ffFile;
     public boolean hasError;
-    public String erMessage;
+    public String erMessage = "";
 
     public MergeFiles(List<RegistredMeter> comFile, List<RegistredMeter> ffFile) {
         this.comFile = comFile;
@@ -20,6 +20,7 @@ public class MergeFiles {
 
         if (comFile.size() != ffFile.size()) {
 
+            hasError = true;
             erMessage += "Размеры файлов не равны";
         }
         comFile.forEach(registredMeter -> {
@@ -28,7 +29,7 @@ public class MergeFiles {
 
 
                     registredMeter.setNumberVerification(meter.getNumberVerification());
-                    registredMeter.setResultVerification(meter.isResultVerification());
+                    registredMeter.setResultVerification(meter.getResultVerification());
                     break;
                 }
                 if (meter.equals(ffFile.get(ffFile.size() - 1))) {

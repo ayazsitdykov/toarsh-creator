@@ -1,23 +1,23 @@
 package com.example.springApp.FSAservice;
 
 import com.example.springApp.model.RegistredMeter;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.Namespace;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FsaXmlWriter {
-    List<RegistredMeter> registredMeters;
+    private List<RegistredMeter> registredMeters;
+    public String resultMessage;
 
     public FsaXmlWriter(List<RegistredMeter> registredMeters) {
         this.registredMeters = registredMeters;
@@ -25,107 +25,118 @@ public class FsaXmlWriter {
 
     public void create(String filePath, String fileName) {
 
+
+
+
         File dir = new File(filePath);
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        try {
-            // Создаем документ XML
-            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-            Document doc = docBuilder.newDocument();
-            doc.setXmlStandalone(false);// <-- Вот эта строка добавляет standalone="no"
 
 
-            // Создаем корневой элемент
-            Element messageElement = doc.createElement("Message");
-            messageElement.setAttribute("xsi:noNamespaceSchemaLocation", "schema.xsd");
-            messageElement.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-            doc.appendChild(messageElement);
+        for (int j = 0; j < registredMeters.size(); j += 1000) { // Создаем несколько файлов размером до 1000 счетчиков
+            int end = Math.min(j + 1000, registredMeters.size());
+            List<RegistredMeter> registredMeterList = new ArrayList<>(registredMeters.subList(j, end));
 
-            // Создаем элемент VerificationMeasuringInstrumentData
-            Element dataElement = doc.createElement("VerificationMeasuringInstrumentData");
-            messageElement.appendChild(dataElement);
+            try {
+
+                // Создаем корневой элемент
+
+                Namespace xsiNamespace = Namespace.getNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+                Element messageElement = new Element("Message");
+                messageElement.addNamespaceDeclaration(xsiNamespace);
+
+                messageElement.setAttribute("noNamespaceSchemaLocation", "schema.xsd", xsiNamespace);
 
 
+                Element instrumentData = new Element("VerificationMeasuringInstrumentData");
 
-            for (int i = 0; i < registredMeters.size(); i++) {
-                RegistredMeter meter = registredMeters.get(i);
-                dataElement.appendChild(createInstrumentElement(doc, meter));
+
+                for (int i = 0; i < registredMeterList.size(); i++) {
+                    RegistredMeter meter = registredMeterList.get(i);
+                    instrumentData.addContent(createInstrumentElement(meter));
+                }
+
+                // Добавляем все в корневой элемент
+                messageElement.addContent(instrumentData);
+
+                // Добавляем SaveMethod
+                Element saveMethod = new Element("SaveMethod");
+                saveMethod.setText("2");
+                messageElement.addContent(saveMethod);
+
+                // Создаем документ
+                Document doc = new Document(messageElement);
+
+                // Настраиваем формат вывода
+                XMLOutputter xmlOutput = new XMLOutputter();
+                xmlOutput.setFormat(Format.getPrettyFormat());
+
+                try (FileWriter writer = new FileWriter(filePath + fileName + "_" + (j+1) + "-" + (end) + ".xml")) {
+                    xmlOutput.output(doc, writer);
+                    resultMessage = "XML файл " + fileName + " успешно создан!";
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
 
-            // Добавляем элемент SaveMethod
-            Element saveMethodElement = doc.createElement("SaveMethod");
-            saveMethodElement.appendChild(doc.createTextNode("2"));
-            messageElement.appendChild(saveMethodElement);
-
-            // Записываем XML в файл
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(filePath + fileName + ".xml"));
-
-            transformer.transform(source, result);
-
-            System.out.println("XML файл успешно создан!");
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
-    private Element createInstrumentElement(Document doc, RegistredMeter meter) {
-        Element instrumentElement = doc.createElement("VerificationMeasuringInstrument");
+    private Element createInstrumentElement(RegistredMeter meter) {
+        Element instrument = new Element("VerificationMeasuringInstrument");
 
-        // NumberVerification (10-значный номер)
-        String number = meter.getNumberVerification();
-        instrumentElement.appendChild(createElementWithText(doc, "NumberVerification", number));
+        Element number = new Element("NumberVerification");
+        number.setText(meter.getNumberVerification());
+        instrument.addContent(number);
 
-        // DateVerification (дата в пределах последнего года)
         LocalDate verificationDate = meter.getDateVerification();
-        instrumentElement.appendChild(createElementWithText(doc, "DateVerification",
-                verificationDate.format(DateTimeFormatter.ISO_DATE)));
+        Element dateVerification = new Element("DateVerification");
+        dateVerification.setText(verificationDate.format(DateTimeFormatter.ISO_DATE));
+        instrument.addContent(dateVerification);
 
-        // DateEndVerification (дата через 1-6 лет от DateVerification)
         LocalDate endDate = meter.getDateEndVerification();
-        instrumentElement.appendChild(createElementWithText(doc, "DateEndVerification",
-                endDate.format(DateTimeFormatter.ISO_DATE)));
+        Element dateEndVerification = new Element("DateEndVerification");
+        dateEndVerification.setText(endDate.format(DateTimeFormatter.ISO_DATE));
+        instrument.addContent(dateEndVerification);
 
-        // TypeMeasuringInstrument (случайный тип из списка)
+        // Тип счетчика
+        Element type = new Element("TypeMeasuringInstrument");
         String instrumentType = meter.getTypeMeasuringInstrument();
-        instrumentElement.appendChild(createElementWithText(doc, "TypeMeasuringInstrument", instrumentType));
+        type.setText(instrumentType);
+        instrument.addContent(type);
 
-        // ApprovedEmployee
-        Element employeeElement = doc.createElement("ApprovedEmployee");
-        instrumentElement.appendChild(employeeElement);
+        // Ответственный сотрудник
+        Element employee = new Element("ApprovedEmployee");
 
-        // Name
-        Element nameElement = doc.createElement("Name");
-        employeeElement.appendChild(nameElement);
+        Element name = new Element("Name");
+        Element last = new Element("Last");
+        last.setText(meter.getLast());
+        Element first = new Element("First");
+        first.setText(meter.getFirst());
+        Element middle = new Element("Middle");
+        middle.setText(meter.getMiddle());
 
-        nameElement.appendChild(createElementWithText(doc, "Last",
-                meter.getLast()));
-        nameElement.appendChild(createElementWithText(doc, "First",
-                meter.getFirst()));
-        nameElement.appendChild(createElementWithText(doc, "Middle",
-                meter.getMiddle()));
+        name.addContent(last);
+        name.addContent(first);
+        name.addContent(middle);
+        employee.addContent(name);
 
-        // SNILS (11 цифр)
-        String snils = meter.getSnils();
-        employeeElement.appendChild(createElementWithText(doc, "SNILS", snils));
+        // СНИЛС
+        Element snils = new Element("SNILS");
+        snils.setText(meter.getSnils());
+        employee.addContent(snils);
+        instrument.addContent(employee);
 
-        // ResultVerification (всегда 1)
-        instrumentElement.appendChild(createElementWithText(doc,"ResultVerification", String.valueOf(meter.isResultVerification())));
+        // Результат проверки
+        Element result = new Element("ResultVerification");
+        result.setText(String.valueOf(meter.getResultVerification()));
+        instrument.addContent(result);
 
-        return instrumentElement;
+        return instrument;
+
+
     }
 
-    private static Element createElementWithText(Document doc, String name, String text) {
-        Element element = doc.createElement(name);
-        element.appendChild(doc.createTextNode(text));
-        return element;
-    }
+
 }

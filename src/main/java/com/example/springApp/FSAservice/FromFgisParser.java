@@ -42,7 +42,7 @@ public class FromFgisParser {
 
                 registredMeter.setDateVerification(parseDate(getCellValue(row.getCell(5))));
                 registredMeter.setManufactureNum(getCellValue(row.getCell(6)));
-                registredMeter.setResultVerification("Да".equalsIgnoreCase(getCellValue(row.getCell(9))));
+                registredMeter.setResultVerification("Да".equalsIgnoreCase(getCellValue(row.getCell(9))) ? 1 : 0);
                 registredMeter.setNumberVerification(splitBySlash(getCellValue(row.getCell(10))));
 
                 registredMeters.add(registredMeter);

@@ -16,6 +16,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -30,14 +32,15 @@ public class GUI extends JFrame {
 
     private JButton toFgisButton;
     private JButton toFsaButton;
-
+    private JButton selectFromFgisFileButton2;
     private JButton saveButton1;
     private JButton saveButton2;
 
     private JProgressBar progressBar;
 
     private File selectedFileToFgis;
-    private File selectedFileFromFgis;
+    private File selectedFileFromFgis1;
+    private File selectedFileFromFgis2;
     private File selectedCompiledFile;
 
     private String saveToFgisPath;
@@ -48,7 +51,7 @@ public class GUI extends JFrame {
     public GUI() {
         setTitle("Автозагрузка поверок ООО \"КБС\"");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 400);
+        setSize(1000, 500);
         ImageIcon icon = new ImageIcon(Objects.requireNonNull
                 (GUI.class.getResource("/Images/kbs.png")));
         setIconImage(icon.getImage());
@@ -63,8 +66,8 @@ public class GUI extends JFrame {
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Control panel
-        JPanel toFgisPanel = new JPanel(new GridLayout(4, 1, 10, 5));
-        JPanel toFsaPanel = new JPanel(new GridLayout(4, 1, 10, 5));
+        JPanel toFgisPanel = new JPanel(new GridLayout(5, 1, 10, 5));
+        JPanel toFsaPanel = new JPanel(new GridLayout(5, 1, 10, 5));
 
         JButton selectRawFileButton = new JButton("Загрузить журнал городов");
         selectRawFileButton.addActionListener(this::selectFileToFgis);
@@ -74,10 +77,16 @@ public class GUI extends JFrame {
         selectCompiledFileButton.setBackground(Color.CYAN);
         selectCompiledFileButton.addActionListener(this::selectCompiledFile);
 
-        JButton selectFromFgisFileButton = new JButton
-                ("<html><div style='text-align: center;'>Загрузить файл <br> отчетов из Аршина</html>");
-        selectFromFgisFileButton.setBackground(Color.CYAN);
-        selectFromFgisFileButton.addActionListener(this::selectFileFromFgis);
+        JButton selectFromFgisFileButton1 = new JButton
+                ("<html><div style='text-align: center;'> 1 файл отчетов <br> из Аршина</html>");
+        selectFromFgisFileButton1.setBackground(Color.CYAN);
+        selectFromFgisFileButton1.addActionListener(this::selectFileFromFgis1);
+
+        selectFromFgisFileButton2 = new JButton
+                ("<html><div style='text-align: center;'> 2 файл отчетов <br> из Аршина(не обязательно)</html>");
+        selectFromFgisFileButton2.setEnabled(false);// кнопка будет активна после выбора 1 файла
+        selectFromFgisFileButton2.setBackground(Color.CYAN);
+        selectFromFgisFileButton2.addActionListener(this::selectFileFromFgis2);
 
         saveButton1 = new JButton("Изменить место сохранения");
         saveButton1.setEnabled(false);
@@ -96,7 +105,7 @@ public class GUI extends JFrame {
 
         toFsaButton = new JButton
                 ("<html><div style='text-align: center;'>Создать файл загрузки <br> в Росаккредитацию</html>");
-        toFsaButton.setBackground(Color.CYAN);
+        toFsaButton.setBackground(Color.cyan);
         toFsaButton.setEnabled(false);
         toFsaButton.addActionListener(this::toFsaAction);
 
@@ -104,11 +113,11 @@ public class GUI extends JFrame {
         toFgisPanel.add(saveButton1);
         toFgisPanel.add(toFgisButton);
 
-        toFsaPanel.add(selectFromFgisFileButton);
+        toFsaPanel.add(selectFromFgisFileButton1);
+        toFsaPanel.add(selectFromFgisFileButton2);
         toFsaPanel.add(selectCompiledFileButton);
         toFsaPanel.add(saveButton2);
         toFsaPanel.add(toFsaButton);
-
 
 
         // Progress bar
@@ -168,29 +177,43 @@ public class GUI extends JFrame {
             logMessage("Результат сохранится в: " + saveToFsaPath);
             saveButton2.setEnabled(true);
 
-            if (selectedFileFromFgis != null) {
+            if (selectedFileFromFgis1 != null) {
                 toFsaButton.setEnabled(true);
             }
 
         }
     }
 
-    private void selectFileFromFgis(ActionEvent e) {
+    private void selectFileFromFgis1(ActionEvent e) {
 
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
                 "Excel files (*.xls, *.xlsx)", "xls", "xlsx"));
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            selectedFileFromFgis = fileChooser.getSelectedFile();
-            logMessage("Выбран файл: " + selectedFileFromFgis.getName());
+            selectedFileFromFgis1 = fileChooser.getSelectedFile();
+            logMessage("Выбран 1 файл: " + selectedFileFromFgis1.getName());
+            selectFromFgisFileButton2.setEnabled(true); //активируем кнопку выбора 2 файла
+
             if (selectedCompiledFile != null) {
 
                 toFsaButton.setEnabled(true);
+
             }
 
         }
     }
 
+    private void selectFileFromFgis2(ActionEvent e) {
+
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+                "Excel files (*.xls, *.xlsx)", "xls", "xlsx"));
+
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            selectedFileFromFgis2 = fileChooser.getSelectedFile();
+            logMessage("Выбран 2 файл: " + selectedFileFromFgis1.getName());
+
+        }
+    }
 
 
     private void selectSaveLocationToFgis(ActionEvent e) {
@@ -225,8 +248,6 @@ public class GUI extends JFrame {
         if (selectedFileToFgis == null) return;
         if (saveToFgisPath.isEmpty()) return;
 
-        toFgisButton.setEnabled(false);
-        saveButton1.setEnabled(false);
         progressBar.setVisible(true);
         progressBar.setIndeterminate(true);
         logMessage("Обработка...");
@@ -244,11 +265,21 @@ public class GUI extends JFrame {
                 }
                 if (waterMeterList != null) {
                     publish("Проверка ошибок...");
-                    Map<String, Object> regFifList = new MpiJsonParser("regFif.json").regFifList;
-                    List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
-                    new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
-                    ErrorChecking ec = new ErrorChecking(waterMeterList, regFifList);
-                    logMessage(ec.errorChecking().toString());
+
+                    String regFifPath = new String(Files.readAllBytes(Paths.get("path.txt")));
+
+                    MpiJsonParser jsonParser = new MpiJsonParser(regFifPath);
+                    logMessage(jsonParser.erMessage);
+
+                    if (!jsonParser.hasError) {
+
+
+                        Map<String, Object> regFifList = jsonParser.regFifList;
+
+                        List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
+                        new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
+                        ErrorChecking ec = new ErrorChecking(waterMeterList, regFifList);
+                        logMessage(ec.errorChecking().toString());
 
                     if (!ec.hasError) {
                         logMessage("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
@@ -260,6 +291,7 @@ public class GUI extends JFrame {
                         ExcelWriter excelWriter = new ExcelWriter();
                         excelWriter.exelCreator(waterMeterList, fileName, saveToFgisPath);
                         logMessage(excelWriter.excelResult);
+                    }
                     }
 
 
@@ -286,8 +318,7 @@ public class GUI extends JFrame {
                     statusLabel.setText("Ошибка");
                 } finally {
                     progressBar.setVisible(false);
-                    toFgisButton.setEnabled(true);
-                    saveButton1.setEnabled(true);
+
                 }
             }
         };
@@ -296,11 +327,7 @@ public class GUI extends JFrame {
     }
 
     private void toFsaAction(ActionEvent e) {
-        if (selectedCompiledFile == null || selectedFileFromFgis == null
-    || saveToFsaPath == null) return;
 
-        toFsaButton.setEnabled(false);
-        saveButton2.setEnabled(false);
         progressBar.setVisible(true);
         progressBar.setIndeterminate(true);
         logMessage("Обработка...");
@@ -310,29 +337,37 @@ public class GUI extends JFrame {
             protected Void doInBackground() throws Exception {
                 publish("Чтение файла...");
                 String filePathCF = selectedCompiledFile.getAbsolutePath(); // Путь к итоговому файлу за месяц
-                String filePathFF = selectedFileFromFgis.getAbsolutePath(); // Путь к файлу из Аршина
-
-                String fileName = filePathCF.substring(filePathCF.lastIndexOf('\\') + 1);
+                String filePathFF1 = selectedFileFromFgis1.getAbsolutePath(); // Путь к 1 файлу из Аршина
 
 
                 List<RegistredMeter> registredMetersCF = new ComplExcelParser().parser(filePathCF);
                 // Парсинг итогового файла
-                List<RegistredMeter> registredMetersFF = new FromFgisParser().parser(filePathFF);
-                //Парсинг файла из Аршина
+                List<RegistredMeter> registredMetersFF = new FromFgisParser().parser(filePathFF1);
+                // Парсинг 1 файла из Аршина(1-1000)
+
+                if (selectedFileFromFgis2 != null) {
+                    String filePathFF2 = selectedFileFromFgis2.getAbsolutePath(); // Путь к 2 файлу из Аршина
+                    registredMetersFF.addAll(new FromFgisParser().parser(filePathFF2));
+                    //Парсинг 2 файла из Аршина (1001-2000)
+                }
 
                 MergeFiles mergeFiles = new MergeFiles(registredMetersCF, registredMetersFF);
                 mergeFiles.merge();
                 //Слияние файлов в registredMetersCF
-                logMessage("Прочитан файл содержащий " + registredMetersCF.size() + " счетчиков");
+                logMessage("Отчет за месяц содержит " + registredMetersCF.size() + " счетчиков");
+                logMessage("Выгрузка из Аршина содержит " + registredMetersFF.size() + " счетчиков");
                 logMessage(mergeFiles.erMessage);
                 FsaXmlWriter fsaXmlWriter = new FsaXmlWriter(registredMetersCF);
                 if (!mergeFiles.hasError) {
 
-                    String fileNameFsa = registredMetersCF.get(0).getDateVerification().getMonth().name().toLowerCase() + "_to_FSA";
+                    String dateMonth = registredMetersCF.get(0).getDateVerification().getMonth().name().toLowerCase();
+                    int dateYear = registredMetersCF.get(0).getDateVerification().getYear();
+
+                    String fileNameFsa = dateMonth + "_" + dateYear + "_FSA";
 
                     fsaXmlWriter.create(saveToFsaPath, fileNameFsa);
+                    logMessage(fsaXmlWriter.resultMessage);
                 }
-
 
 
                 return null;
@@ -356,8 +391,7 @@ public class GUI extends JFrame {
                     statusLabel.setText("Ошибка");
                 } finally {
                     progressBar.setVisible(false);
-                    toFgisButton.setEnabled(true);
-                    saveButton1.setEnabled(true);
+
                 }
             }
         };

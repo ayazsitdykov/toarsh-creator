@@ -13,6 +13,8 @@ public class MpiJsonParser {
 
     public Map<String, Object> regFifList = new HashMap<>();
     File file;
+    public String erMessage = "";
+    public boolean hasError;
 
 
     public MpiJsonParser(String path) throws IOException {
@@ -90,7 +92,8 @@ public class MpiJsonParser {
 
 
         } catch (Exception e) {
-            System.out.println("Ошибка файла JSON");
+            erMessage = "Ошибка файла JSON";
+            hasError = true;
         }
     }
 }

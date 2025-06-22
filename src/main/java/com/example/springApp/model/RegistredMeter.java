@@ -19,12 +19,7 @@ public class RegistredMeter {
     private String first;
     private String middle;
     private String snils;
-    private boolean resultVerification;
-
-
-    public boolean isResultVerification() {
-        return resultVerification;
-    }
+    private int resultVerification;
 
     @Override
     public boolean equals(Object o) {
