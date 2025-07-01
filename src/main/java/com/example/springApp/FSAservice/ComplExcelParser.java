@@ -7,6 +7,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
@@ -24,8 +25,8 @@ public class ComplExcelParser {
 
     public List<RegistredMeter> parser(String filePath) {
 
-        try (InputStream inputStream = new FileInputStream(filePath);
-             HSSFWorkbook workBook = new HSSFWorkbook(inputStream)) {
+        try (FileInputStream inputStream = new FileInputStream(filePath);
+             Workbook workBook = new HSSFWorkbook(inputStream)) {
             Sheet sheet = workBook.getSheetAt(0);
 
             for (Row row : sheet) {

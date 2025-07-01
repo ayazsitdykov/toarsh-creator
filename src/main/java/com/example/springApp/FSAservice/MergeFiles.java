@@ -21,7 +21,7 @@ public class MergeFiles {
         if (comFile.size() != ffFile.size()) {
 
             hasError = true;
-            erMessage += "Размеры файлов не равны";
+            erMessage += "Размеры файлов не равны \n";
         }
         comFile.forEach(registredMeter -> {
             for (RegistredMeter meter : ffFile) {

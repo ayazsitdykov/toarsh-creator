@@ -73,7 +73,7 @@ public class GUI extends JFrame {
         selectRawFileButton.addActionListener(this::selectFileToFgis);
 
         JButton selectCompiledFileButton = new JButton
-                ("<html><div style='text-align: center;'>Загрузить файл <br> отчетов за месяц</html>");
+                ("<html><div style='text-align: center;'>Файл отчетов <br> за месяц</html>");
         selectCompiledFileButton.setBackground(Color.CYAN);
         selectCompiledFileButton.addActionListener(this::selectCompiledFile);
 
@@ -210,7 +210,7 @@ public class GUI extends JFrame {
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             selectedFileFromFgis2 = fileChooser.getSelectedFile();
-            logMessage("Выбран 2 файл: " + selectedFileFromFgis1.getName());
+            logMessage("Выбран 2 файл: " + selectedFileFromFgis2.getName());
 
         }
     }
@@ -266,7 +266,8 @@ public class GUI extends JFrame {
                 if (waterMeterList != null) {
                     publish("Проверка ошибок...");
 
-                    String regFifPath = new String(Files.readAllBytes(Paths.get("path.txt")));
+                    String regFifPath = new String(Files.readAllBytes(Paths.get("path.txt"))).trim()
+                            .replaceAll("\"", "");
 
                     MpiJsonParser jsonParser = new MpiJsonParser(regFifPath);
                     logMessage(jsonParser.erMessage);

@@ -91,6 +91,7 @@ public class MpiJsonParser {
             }
 
 
+
         } catch (Exception e) {
             erMessage = "Ошибка файла JSON";
             hasError = true;

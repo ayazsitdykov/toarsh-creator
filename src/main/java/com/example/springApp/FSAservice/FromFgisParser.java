@@ -3,48 +3,41 @@ package com.example.springApp.FSAservice;
 import com.example.springApp.model.RegistredMeter;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class FromFgisParser {
 
     public List<RegistredMeter> parser(String filePath) {
 
         List<RegistredMeter> registredMeters = new ArrayList<>();
-        try (FileInputStream fis = new FileInputStream(new File(filePath));
+        try (FileInputStream fis = new FileInputStream(filePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
             Sheet sheet = workbook.getSheetAt(0); // Берём первый лист
             Iterator<Row> rowIterator = sheet.iterator();
-
-            // Пропускаем заголовки (первые 3 строки)
-            for (int i = 0; i < 3; i++) {
-                if (rowIterator.hasNext()) {
-                    rowIterator.next();
-                }
-            }
+            Pattern pattern = Pattern.compile("[А-яа-яЁё]");
 
             // Парсим данные
             while (rowIterator.hasNext()) {
                 RegistredMeter registredMeter = new RegistredMeter();
-
                 Row row = rowIterator.next();
 
+                //Пропускаем заголовки (первые 3 строки), если не дата
+                    if (pattern.matcher(getCellValue(row.getCell(0))).find()) {
+                        continue;
+                    }
 
                 // Парсим каждую ячейку
-
                 registredMeter.setDateVerification(parseDate(getCellValue(row.getCell(5))));
                 registredMeter.setManufactureNum(getCellValue(row.getCell(6)));
                 registredMeter.setResultVerification("Да".equalsIgnoreCase(getCellValue(row.getCell(9))) ? 1 : 0);
                 registredMeter.setNumberVerification(splitBySlash(getCellValue(row.getCell(10))));
-
                 registredMeters.add(registredMeter);
             }
 
