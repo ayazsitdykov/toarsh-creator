@@ -118,9 +118,8 @@ public class ExcelParser {
 
         if (cell.getCellType().name().equals("NUMERIC")) {
 
-
-            return String.valueOf(cell.getNumericCellValue()).replace(".", "")
-                    .split("E")[0];
+            int number = (int) cell.getNumericCellValue();
+            return String.valueOf(number);
         }
 
 
