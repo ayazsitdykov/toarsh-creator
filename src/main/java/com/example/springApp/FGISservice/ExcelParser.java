@@ -55,7 +55,7 @@ public class ExcelParser {
 
                 IPU waterMeter = new IPU();
                 waterMeter.setMitypeNumber(getStringCell(row.getCell(0)));
-                waterMeter.setManufactureNum(getManufactureNum(row.getCell(1)));
+                waterMeter.setManufactureNum(getStringCell(row.getCell(1)));
                 waterMeter.setModification(getStringCell(row.getCell(2)));
                 waterMeter.setVrfDate(getDateCell(row.getCell(3)));
                 waterMeter.setValidDate(getDateCell(row.getCell(4)));
@@ -109,16 +109,6 @@ public class ExcelParser {
         return cell.getDateCellValue().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    private String getManufactureNum(Cell cell) {
-        if (cell.getCellType().name().equals("NUMERIC")) {
-            throw new RuntimeException("Измените формат номеров счетчиков в текстовый");
-        }
-
-        return getStringCell(cell);
-
-    }
-
-
     private String getStringCell(Cell cell) {
 
         if (cell == null) {
@@ -126,6 +116,11 @@ public class ExcelParser {
             return "";
         }
 
+        if (cell.getCellType().name().equals("NUMERIC")) {
+
+            int number = (int) cell.getNumericCellValue();
+            return String.valueOf(number);
+        }
 
 
         return cell.getStringCellValue().trim();
