@@ -1,9 +1,7 @@
 package com.example.springApp.FGISservice;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.*;

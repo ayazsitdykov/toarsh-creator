@@ -8,17 +8,13 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class ComplExcelParser {
     List<RegistredMeter> registredMeters = new ArrayList<>();
@@ -64,13 +60,16 @@ public class ComplExcelParser {
 
         String str = "";
 
+
         if (cell.getCellType().name().equals("STRING")) {
             str = getStringCell(cell);
+
         }
 
         if (cell.getCellType().name().equals("NUMERIC")) {
-            str = (String.valueOf(cell.getNumericCellValue())).replaceAll("E7", "")
-                    .replaceAll("\\.", "");
+            int numberAsNumber = (int) cell.getNumericCellValue();
+
+            str = String.valueOf(numberAsNumber);
         }
         return str;
     }

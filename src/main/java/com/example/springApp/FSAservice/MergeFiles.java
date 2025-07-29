@@ -47,7 +47,7 @@ public class MergeFiles {
                     break;
                 }
 
-                if (meter.equals(ffFile.get(ffFile.size() - 1))) {
+                if (meter.equals(comFile.get(comFile.size() - 1))) {
                     //если не нашли счетчик в comFile
                     printMessage(registredMeter.getManufactureNum(), "Не найден в файле за месяц");
                 }
