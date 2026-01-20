@@ -283,7 +283,7 @@ public class GUI extends JFrame {
 
                     if (!ec.hasError) {
                         logMessage("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
-                        new CreatorParameters().paramCreate(waterMeterList);
+                        new ParamCreator().create(waterMeterList);
                         publish("Запись файлов...");
                         XMLWriter xmlWriter = new XMLWriter();
                         xmlWriter.toArchWriter(waterMeterList, fileName, saveToFgisPath);

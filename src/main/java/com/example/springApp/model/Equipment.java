@@ -1,12 +1,10 @@
 package com.example.springApp.model;
 
-
 import lombok.Getter;
 import lombok.Setter;
 
-
-@Setter
 @Getter
+@Setter
 public class Equipment {
     private String metrologist;
     private String numberUpsz;
@@ -16,10 +14,8 @@ public class Equipment {
     private String manufactureNumIva;
     private String typeNumTl;
     private String manufactureNumTl;
-
     private String fulName;
     private String snils;
-
 
 
     @Override

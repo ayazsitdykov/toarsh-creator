@@ -1,8 +1,8 @@
 package com.example.springApp.FSAservice;
 
 import com.example.springApp.model.RegistredMeter;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +17,7 @@ public class FromFgisParser {
 
         List<RegistredMeter> registredMeters = new ArrayList<>();
         try (FileInputStream fis = new FileInputStream(filePath);
-             Workbook workbook = new XSSFWorkbook(fis)) {
+             Workbook workbook = new HSSFWorkbook(fis)) {
 
             Sheet sheet = workbook.getSheetAt(0); // Берём первый лист
             Iterator<Row> rowIterator = sheet.iterator();
@@ -29,15 +29,15 @@ public class FromFgisParser {
                 Row row = rowIterator.next();
 
                 //Пропускаем заголовки (первые 3 строки), если не дата
-                    if (pattern.matcher(getCellValue(row.getCell(0))).find()) {
-                        continue;
-                    }
+//                    if (pattern.matcher(getCellValue(row.getCell(0))).find()) {
+//                        continue;
+//                    }
 
                 // Парсим каждую ячейку
-                registredMeter.setDateVerification(parseDate(getCellValue(row.getCell(5))));
-                registredMeter.setManufactureNum(getCellValue(row.getCell(6)));
+                registredMeter.setDateVerification(parseDate(getCellValue(row.getCell(6))));
+                registredMeter.setManufactureNum(getCellValue(row.getCell(5)));
                 registredMeter.setResultVerification("Да".equalsIgnoreCase(getCellValue(row.getCell(9))) ? 1 : 0);
-                registredMeter.setNumberVerification(splitBySlash(getCellValue(row.getCell(10))));
+                registredMeter.setNumberVerification(splitBySlash(getCellValue(row.getCell(8))));
                 registredMeters.add(registredMeter);
             }
 

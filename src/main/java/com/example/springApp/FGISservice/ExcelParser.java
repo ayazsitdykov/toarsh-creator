@@ -27,7 +27,6 @@ public class ExcelParser {
 
     public LinkedHashMap<KeyMeter, IPU> parse(String filePath) {
 
-
         try (InputStream inputStream = new FileInputStream(filePath);
              XSSFWorkbook workBook = new XSSFWorkbook(inputStream)) {
             Sheet sheet = workBook.getSheetAt(0);

@@ -1,12 +1,15 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/skillbox
-    username: root
-    password: Pass
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: user
+    password: password
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: true
     properties:
       hibernate:
-        12dialect: org.hubernate.dialect.MySQLDialect
-    hibernate:
-      ddl-auto: create
-    show-sql: true
+        format_sql: true
+
