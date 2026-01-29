@@ -13,3 +13,9 @@ spring:
       hibernate:
         format_sql: true
 
+files:
+  path:
+    reg-fif-json: regFif.json
+    stop-list: forbidden.txt
+    mp-other: mpOther.json
+    equipment: equipment.json

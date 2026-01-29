@@ -26,6 +26,7 @@ public class JsonParser<T> {
                     mapper.getTypeFactory()
                             .constructCollectionType(List.class, type));
         } catch (Exception e) {
+            log.error("Error while parsing json file", e);
             throw new RuntimeException(e);
         }
         return parsedList;

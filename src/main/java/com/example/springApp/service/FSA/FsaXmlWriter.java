@@ -1,11 +1,13 @@
-package com.example.springApp.FSAservice;
+package com.example.springApp.service.FSA;
 
 import com.example.springApp.model.RegistredMeter;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.Namespace;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,71 +17,60 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class FsaXmlWriter {
-    private List<RegistredMeter> registredMeters;
+
+    private static final int MAX_ELEMENTS_PER_FILE = 1000;
+    private final List<RegistredMeter> registeredMeters;
     public String resultMessage;
 
-    public FsaXmlWriter(List<RegistredMeter> registredMeters) {
-        this.registredMeters = registredMeters;
+    public FsaXmlWriter(List<RegistredMeter> registeredMeters) {
+        this.registeredMeters = registeredMeters;
     }
 
     public void create(String filePath, String fileName) {
-
-
-
 
         File dir = new File(filePath);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
-
-        for (int j = 0; j < registredMeters.size(); j += 1000) { // Создаем несколько файлов размером до 1000 счетчиков
-            int end = Math.min(j + 1000, registredMeters.size());
-            List<RegistredMeter> registredMeterList = new ArrayList<>(registredMeters.subList(j, end));
+        for (int j = 0; j < registeredMeters.size(); j += MAX_ELEMENTS_PER_FILE) {
+            int end = Math.min(j + MAX_ELEMENTS_PER_FILE, registeredMeters.size());
+            List<RegistredMeter> registredMeterList = new ArrayList<>(registeredMeters.subList(j, end));
 
             try {
 
-                // Создаем корневой элемент
-
-                Namespace xsiNamespace = Namespace.getNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+                Namespace xsiNamespace = Namespace.getNamespace("xsi",
+                        "http://www.w3.org/2001/XMLSchema-instance");
                 Element messageElement = new Element("Message");
                 messageElement.addNamespaceDeclaration(xsiNamespace);
-
                 messageElement.setAttribute("noNamespaceSchemaLocation", "schema.xsd", xsiNamespace);
-
-
                 Element instrumentData = new Element("VerificationMeasuringInstrumentData");
 
-
-                for (int i = 0; i < registredMeterList.size(); i++) {
-                    RegistredMeter meter = registredMeterList.get(i);
+                for (RegistredMeter meter : registredMeterList) {
                     instrumentData.addContent(createInstrumentElement(meter));
                 }
-
-                // Добавляем все в корневой элемент
                 messageElement.addContent(instrumentData);
 
-                // Добавляем SaveMethod
                 Element saveMethod = new Element("SaveMethod");
                 saveMethod.setText("2");
                 messageElement.addContent(saveMethod);
 
-                // Создаем документ
                 Document doc = new Document(messageElement);
 
-                // Настраиваем формат вывода
                 XMLOutputter xmlOutput = new XMLOutputter();
                 xmlOutput.setFormat(Format.getPrettyFormat());
 
-                try (FileWriter writer = new FileWriter(filePath + fileName + "_" + (j+1) + "-" + (end) + ".xml")) {
+                try (FileWriter writer = new FileWriter(filePath + fileName + "_"
+                        + (j + 1) + "-" + (end) + ".xml")) {
                     xmlOutput.output(doc, writer);
                     resultMessage = "XML файл " + fileName + " успешно создан!";
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("Ошибка при создании XML файла {}", fileName);
+                throw new RuntimeException(e);
             }
-
         }
     }
 
@@ -90,24 +81,26 @@ public class FsaXmlWriter {
         number.setText(meter.getNumberVerification());
         instrument.addContent(number);
 
-        LocalDate verificationDate = meter.getDateVerification();
-        Element dateVerification = new Element("DateVerification");
-        dateVerification.setText(verificationDate.format(DateTimeFormatter.ISO_DATE));
-        instrument.addContent(dateVerification);
+        createDate("DateVerification", meter.getDateVerification(), instrument);
+        createDate("DateEndVerification", meter.getDateEndVerification(), instrument);
 
-        LocalDate endDate = meter.getDateEndVerification();
-        Element dateEndVerification = new Element("DateEndVerification");
-        dateEndVerification.setText(endDate.format(DateTimeFormatter.ISO_DATE));
-        instrument.addContent(dateEndVerification);
-
-        // Тип счетчика
         Element type = new Element("TypeMeasuringInstrument");
         String instrumentType = meter.getTypeMeasuringInstrument();
         type.setText(instrumentType);
         instrument.addContent(type);
 
-        // Ответственный сотрудник
-        Element employee = new Element("ApprovedEmployee");
+        Element employee = getElement(meter);
+        instrument.addContent(employee);
+
+        Element result = new Element("ResultVerification");
+        result.setText(String.valueOf(meter.getResultVerification()));
+        instrument.addContent(result);
+
+        return instrument;
+    }
+
+    private static @NotNull Element getElement(RegistredMeter meter) {
+        Element employee = new Element("ApprovedEmployees");
 
         Element name = new Element("Name");
         Element last = new Element("Last");
@@ -122,21 +115,15 @@ public class FsaXmlWriter {
         name.addContent(middle);
         employee.addContent(name);
 
-        // СНИЛС
         Element snils = new Element("SNILS");
         snils.setText(meter.getSnils());
         employee.addContent(snils);
-        instrument.addContent(employee);
-
-        // Результат проверки
-        Element result = new Element("ResultVerification");
-        result.setText(String.valueOf(meter.getResultVerification()));
-        instrument.addContent(result);
-
-        return instrument;
-
-
+        return employee;
     }
 
-
+    private void createDate(String elementName, LocalDate date, Element parentElement) {
+        Element element = new Element(elementName);
+        element.setText(date.format(DateTimeFormatter.ISO_DATE));
+        parentElement.addContent(element);
+    }
 }

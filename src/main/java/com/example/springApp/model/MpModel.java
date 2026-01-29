@@ -6,7 +6,7 @@ import java.util.List;
 
 public record MpModel(
         @JsonProperty("Методика поверки")
-        String name,
+        String docTitle,
         @JsonProperty("Приборы")
         List<String> meters
 ) {

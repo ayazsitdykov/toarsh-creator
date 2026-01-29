@@ -1,4 +1,4 @@
-package com.example.springApp.FGISservice;
+package com.example.springApp.service.FGIS;
 
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.Params;

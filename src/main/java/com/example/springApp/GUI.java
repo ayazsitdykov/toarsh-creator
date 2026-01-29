@@ -1,16 +1,15 @@
 package com.example.springApp;
 
-import com.example.springApp.FSAservice.ComplExcelParser;
-import com.example.springApp.FSAservice.FromFgisParser;
-import com.example.springApp.FSAservice.FsaXmlWriter;
-import com.example.springApp.FSAservice.MergeFiles;
+import com.example.springApp.service.FSA.CompletedFileExtractor;
+import com.example.springApp.service.FSA.FgisFileExtractor;
+import com.example.springApp.service.FSA.FsaXmlWriter;
+import com.example.springApp.service.FSA.MergeFiles;
 import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
-import com.example.springApp.model.KeyMeter;
 import com.example.springApp.model.RegistredMeter;
-import com.example.springApp.services.ExcelWriter;
-import com.example.springApp.services.XMLWriter;
-import com.example.springApp.FGISservice.*;
+import com.example.springApp.service.FGIS.FgisExcelWriter;
+import com.example.springApp.service.FGIS.FgisXmlWriter;
+import com.example.springApp.service.FGIS.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -257,8 +256,8 @@ public class GUI extends JFrame {
                 publish("Чтение файла...");
                 String filePath = selectedFileToFgis.getAbsolutePath();
                 String fileName = filePath.substring(filePath.lastIndexOf('\\') + 1);
-                ExcelParser parser = new ExcelParser();
-                Map<KeyMeter, IPU> waterMeterList = parser.parse(filePath);
+                MetrologyFileExtractor parser = new MetrologyFileExtractor();
+                Map<KeyMeter, IPU> waterMeterList = parser.transfer(filePath);
                 if (!parser.parsingResult.isEmpty()) {
                     logMessage(parser.parsingResult);
                 }
@@ -278,17 +277,17 @@ public class GUI extends JFrame {
 
                         List<Equipment> eqL = new EquipmentParser().parse("equipment.json");
                         new EquipmentWriter().writingByMetrologist(waterMeterList, eqL);
-                        ErrorChecking ec = new ErrorChecking(waterMeterList, regFifList);
-                        logMessage(ec.errorChecking().toString());
+                        ErrorAndMethodicChecking ec = new ErrorAndMethodicChecking(waterMeterList, regFifList);
+                        logMessage(ec.check().toString());
 
                     if (!ec.hasError) {
                         logMessage("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
                         new ParamCreator().create(waterMeterList);
                         publish("Запись файлов...");
-                        XMLWriter xmlWriter = new XMLWriter();
+                        FgisXmlWriter xmlWriter = new FgisXmlWriter();
                         xmlWriter.toArchWriter(waterMeterList, fileName, saveToFgisPath);
                         logMessage(xmlWriter.xmlResult);
-                        ExcelWriter excelWriter = new ExcelWriter();
+                        FgisExcelWriter excelWriter = new FgisExcelWriter();
                         excelWriter.exelCreator(waterMeterList, fileName, saveToFgisPath);
                         logMessage(excelWriter.excelResult);
                     }
@@ -340,14 +339,14 @@ public class GUI extends JFrame {
                 String filePathFF1 = selectedFileFromFgis1.getAbsolutePath(); // Путь к 1 файлу из Аршина
 
 
-                List<RegistredMeter> registredMetersCF = new ComplExcelParser().parser(filePathCF);
+                List<RegistredMeter> registredMetersCF = new CompletedFileExtractor().transfer(filePathCF);
                 // Парсинг итогового файла
-                List<RegistredMeter> registredMetersFF = new FromFgisParser().parser(filePathFF1);
+                List<RegistredMeter> registredMetersFF = new FgisFileExtractor().parser(filePathFF1);
                 // Парсинг 1 файла из Аршина(1-1000)
 
                 if (selectedFileFromFgis2 != null) {
                     String filePathFF2 = selectedFileFromFgis2.getAbsolutePath(); // Путь к 2 файлу из Аршина
-                    registredMetersFF.addAll(new FromFgisParser().parser(filePathFF2));
+                    registredMetersFF.addAll(new FgisFileExtractor().parser(filePathFF2));
                     //Парсинг 2 файла из Аршина (1001-2000)
                 }
 
