@@ -13,3 +13,16 @@ spring:
       hibernate:
         format_sql: true
 
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    drop-first: true
+
+files:
+  path:
+    reg-fif-json: regFif.json
+    stop-list: forbidden.txt
+    mp-other: mpOther.json
+    equipment: equipment.json
+
+server:
+  port: 8081

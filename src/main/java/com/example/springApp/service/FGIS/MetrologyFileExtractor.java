@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -17,10 +18,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class MetrologyFileExtractor extends ExcelExtractor {
 
     private final List<Equipment> equipmentList;
-    private final List<IPU> waterMeterList = new LinkedList<>();
 
     private String addressMemory = "Ул. Ленина, " + (new Random().nextInt(100) + 50)
             + " - " + (new Random().nextInt(5) + 10);
@@ -29,6 +30,8 @@ public class MetrologyFileExtractor extends ExcelExtractor {
     public String parsingResult = "";
 
     public List<IPU> transfer(Sheet sheet) {
+
+        List<IPU> waterMeterList = new LinkedList<>();
 
         for (Row row : sheet) {
             if (row.getRowNum() == 0) {
@@ -67,6 +70,7 @@ public class MetrologyFileExtractor extends ExcelExtractor {
 
     private Equipment fillEquipment(String metrologist) {
        return equipmentList.stream()
+                .filter(eq -> eq.getAbbreviatedName() != null)
                 .filter(eq -> eq.getAbbreviatedName().equals(metrologist))
                 .findFirst().orElse(null);
     }

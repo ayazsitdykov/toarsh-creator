@@ -64,7 +64,11 @@ public class SpringConfig {
     }
 
     private String abbreviateMiddleName(String fullName) {
+        if (fullName.isBlank()) {
+            return null;
+        }
         return fullName.trim()
                 .replaceAll("^(\\S+)\\s+(\\S)\\S*\\s+(\\S)\\S*$", "$1 $2. $3.");
     }
+
 }

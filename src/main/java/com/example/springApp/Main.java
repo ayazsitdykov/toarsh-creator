@@ -1,41 +1,30 @@
 package com.example.springApp;
 
-import com.example.springApp.model.MeterDescription;
-import com.example.springApp.model.MpModel;
-import com.example.springApp.parser.JsonParser;
-import com.example.springApp.parser.TxtParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.springApp.gui.MainFrame;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.swing.*;
 
+
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) {
-        JsonParser<MeterDescription> rFParser = new JsonParser<>(MeterDescription.class, new ObjectMapper());
-        List<MeterDescription> meters = rFParser.parse("regFif.json");
-        List<Integer> mpi = new ArrayList<>();
-        for (MeterDescription meter : meters) {
-            if (!meter.isMpiObject()) {
-                mpi.add(meter.getMpiAsInteger());
-            } else {
-                Object o = meter.getMpiAsMap().get("ХВС");
-                if (o instanceof Integer) {
-                    mpi.add((int) o);
-                } else if (o != null) {
-                    List<Integer> integers = (ArrayList<Integer>) o;
-                    mpi.addAll(integers);
-                }
-            }
-        }
-        System.out.println(mpi.size());
 
-        JsonParser<MpModel> mParser = new JsonParser<>(MpModel.class, new ObjectMapper());
-        List<MpModel> mp = mParser.parse("mpOther.json");
-        mp.forEach(System.out::println);
+        System.setProperty("java.awt.headless", "false");
 
-        TxtParser tParser = new TxtParser();
-        System.out.println(tParser.parseToList("forbidden.txt"));
+        var ctx = new SpringApplicationBuilder(Main.class)
+                .headless(false)                    // GUI приложение
+                .web(WebApplicationType.NONE)       // Не веб-приложение
+                .run(args);
+        SpringApplication.run(Main.class, args);
+        SwingUtilities.invokeLater(() -> {
+            MainFrame app = ctx.getBean(MainFrame.class);
+            app.setVisible(true);
+        });
 
     }
-}
 
+}

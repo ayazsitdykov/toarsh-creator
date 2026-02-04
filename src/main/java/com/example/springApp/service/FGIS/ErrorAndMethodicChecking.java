@@ -4,8 +4,10 @@ import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.MeterDescription;
 import com.example.springApp.model.MpModel;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,17 +17,23 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class ErrorAndMethodicChecking {
 
-    private final List<IPU> waterMeterList;
     private final List<MeterDescription> regFifList;
     private final List<String> stopList;
     private final List<MpModel> otherMethodicList;
 
-    private final StringBuilder stringBuilder = new StringBuilder("\n");
-    private boolean hasError = false;
+    private StringBuilder logOut;
+    private boolean hasError;
 
-    public StringBuilder check() {
+    @PostConstruct
+    public void init() {
+        this.logOut = new StringBuilder("\n");
+        this.hasError = false;
+    }
+
+    public StringBuilder check(List<IPU> waterMeterList) {
 
         waterMeterList.forEach((ipu) -> {
             String manufactureNumber = ipu.getManufactureNum();
@@ -39,7 +47,7 @@ public class ErrorAndMethodicChecking {
                     .filter((meter) -> meter.regNumber().equals(regNumber))
                     .findFirst().orElse(null);
 
-            if (equipment != null) {
+            if (equipment == null) {
                 printFaultMessage(manufactureNumber, "Поверитель не найден");
             }
 
@@ -142,15 +150,20 @@ public class ErrorAndMethodicChecking {
         });
 
         if (!hasError) {
-            stringBuilder.append("Файл прочитан - ошибок не обнаружено");
+            logOut.append("Файл прочитан - ошибок не обнаружено");
         }
 
-        return stringBuilder;
+        if (hasError) {
+            log.error(logOut.toString());
+            throw new RuntimeException(logOut.toString());
+        }
+
+        return logOut;
     }
 
     private void printFaultMessage(String number, String message) {
         hasError = true;
-        stringBuilder.append("Счетчик с номером ")
+        logOut.append("Счетчик с номером ")
                 .append(number).append(" - ")
                 .append(message).append("\n");
         log.error("Счетчик с номером {} - {}", number, message);

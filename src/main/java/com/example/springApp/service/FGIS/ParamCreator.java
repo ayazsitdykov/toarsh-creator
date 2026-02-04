@@ -3,11 +3,13 @@ package com.example.springApp.service.FGIS;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.Params;
 import lombok.Getter;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Random;
 
 @Getter
+@Component
 public class ParamCreator {
 
     private static final int MIN_TEMP = 22;
