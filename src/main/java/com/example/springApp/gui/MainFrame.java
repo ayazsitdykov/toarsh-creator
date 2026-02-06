@@ -56,12 +56,11 @@ public class MainFrame extends JFrame {
     @Autowired
     private MergeFiles mergeFiles;
 
-    private List<RegistredMeter> registredMetersCF;
-    private List<RegistredMeter> registredMetersFF;
+    private List<RegistredMeter> registeredMetersCF;
+    private List<RegistredMeter> registeredMetersFF;
 
     private File selectedFileToFgis;
     private File selectedFileFromFgis1;
-    private File addFileFromFgis;
     private File selectedCompiledFile;
 
     private String saveToFgisPath;
@@ -118,7 +117,7 @@ public class MainFrame extends JFrame {
             fsaUI.getToFsaButton().setEnabled(true);
         }
 
-        registredMetersCF = completedFileExtractor
+        registeredMetersCF = completedFileExtractor
                 .transfer(excelParser.parse(selectedCompiledFile.getAbsolutePath()).get(0));
 
     }
@@ -151,7 +150,7 @@ public class MainFrame extends JFrame {
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             selectedFileFromFgis1 = fileChooser.getSelectedFile();
-            registredMetersFF = fgisFileExtractor
+            registeredMetersFF = fgisFileExtractor
                     .transfer(excelParser.parse(selectedFileFromFgis1.getAbsolutePath()).get(0));
             logMessage("Выбран 1 файл: " + selectedFileFromFgis1.getName());
             fsaUI.getAddFromFgisFileButton().setEnabled(true); //активируем кнопку выбора 2 файла
@@ -168,9 +167,9 @@ public class MainFrame extends JFrame {
                 "Excel files (*.xls, *.xlsx)", "xls", "xlsx"));
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            addFileFromFgis = fileChooser.getSelectedFile();
+            File addFileFromFgis = fileChooser.getSelectedFile();
 
-            registredMetersFF.addAll(fgisFileExtractor
+            registeredMetersFF.addAll(fgisFileExtractor
                     .transfer(excelParser.parse(addFileFromFgis.getAbsolutePath()).get(0)));
             logMessage("Добавлен файл: " + addFileFromFgis.getName());
         }
@@ -282,17 +281,17 @@ public class MainFrame extends JFrame {
             protected Void doInBackground() {
                 publish("Чтение файла...");
 
-                mergeFiles.merge(registredMetersCF, registredMetersFF);
+                mergeFiles.merge(registeredMetersCF, registeredMetersFF);
 
-                logMessage("Отчет за месяц содержит " + registredMetersCF.size() + " счетчиков");
-                logMessage("Выгрузка из Аршина содержит " + registredMetersFF.size() + " счетчиков");
+                logMessage("Отчет за месяц содержит " + registeredMetersCF.size() + " счетчиков");
+                logMessage("Выгрузка из Аршина содержит " + registeredMetersFF.size() + " счетчиков");
 
-                String dateMonth = registredMetersCF.get(0).getDateVerification().getMonth().name().toLowerCase();
-                int dateYear = registredMetersCF.get(0).getDateVerification().getYear();
+                String dateMonth = registeredMetersCF.get(0).getDateVerification().getMonth().name().toLowerCase();
+                int dateYear = registeredMetersCF.get(0).getDateVerification().getYear();
 
                 String fileNameFsa = dateMonth + "_" + dateYear + "_FSA";
 
-                fsaXmlWriter.create(registredMetersCF, saveToFsaPath, fileNameFsa);
+                fsaXmlWriter.create(registeredMetersCF, saveToFsaPath, fileNameFsa);
                 logMessage(fsaXmlWriter.resultMessage);
 
 
