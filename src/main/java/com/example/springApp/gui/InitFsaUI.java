@@ -12,7 +12,7 @@ public class InitFsaUI {
 
     private JTextArea logArea;
     private JButton toFsaButton;
-    private JButton selectFromFgisFileButton2;
+    private JButton addFromFgisFileButton;
     private JButton saveButtonFsa;
     private JButton selectCompiledFileButton;
     private JButton selectFromFgisFileButton1;
@@ -29,23 +29,23 @@ public class InitFsaUI {
                 ("<html><div style='text-align: center;'> 1 файл отчетов <br> из Аршина</html>");
         selectFromFgisFileButton1.setBackground(Color.CYAN);
 
-        selectFromFgisFileButton2 = new JButton
-                ("<html><div style='text-align: center;'> 2 файл отчетов <br> из Аршина(не обязательно)</html>");
-        selectFromFgisFileButton2.setEnabled(false);// кнопка будет активна после выбора 1 файла
-        selectFromFgisFileButton2.setBackground(Color.CYAN);
+        addFromFgisFileButton = new JButton
+                ("<html><div style='text-align: center;'> Добавить файл отчетов <br> из Аршина(не обязательно)</html>");
+        addFromFgisFileButton.setEnabled(false);// кнопка будет активна после выбора 1 файла
+        addFromFgisFileButton.setBackground(Color.CYAN);
 
         saveButtonFsa = new JButton("Изменить место сохранения");
-        saveButtonFsa.setBackground(Color.CYAN);
+        saveButtonFsa.setBackground(Color.lightGray);
         saveButtonFsa.setEnabled(false);
 
 
         toFsaButton = new JButton
                 ("<html><div style='text-align: center;'>Создать файл загрузки <br> в Росаккредитацию</html>");
-        toFsaButton.setBackground(Color.cyan);
+        toFsaButton.setBackground(Color.PINK);
         toFsaButton.setEnabled(false);
 
         toFsaPanel.add(selectFromFgisFileButton1);
-        toFsaPanel.add(selectFromFgisFileButton2);
+        toFsaPanel.add(addFromFgisFileButton);
         toFsaPanel.add(selectCompiledFileButton);
         toFsaPanel.add(saveButtonFsa);
         toFsaPanel.add(toFsaButton);

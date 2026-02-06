@@ -4,6 +4,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -11,11 +12,20 @@ spring:
     show-sql: true
     properties:
       hibernate:
+        generate_statistics: true
         format_sql: true
+        jdbc:
+          batch_size: 1000
+          order_inserts: true
+          order_updates: true
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     drop-first: true
+
+logging:
+  level:
+    root: info
 
 files:
   path:

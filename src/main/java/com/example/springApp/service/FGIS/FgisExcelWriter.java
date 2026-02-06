@@ -9,21 +9,23 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 @Slf4j
+@Component
 public class FgisExcelWriter {
 
     public String excelResult = "";
 
     public void exelCreator(List<IPU> waterMeterList, String fileName, String savePath) {
 
-        String fileNameFormat = fileName.substring(0, fileName.lastIndexOf('.'));
+        String fileNameFormat = fileName.substring(0, fileName.lastIndexOf('.')).trim();
 
-        try (FileOutputStream out = new FileOutputStream(savePath + fileNameFormat + ".xls");
+        try (FileOutputStream out = new FileOutputStream(savePath + fileNameFormat + ".xlsx");
              Workbook wb = new XSSFWorkbook()) {
 
             Sheet sheet = wb.createSheet("Sheet1");
@@ -78,7 +80,7 @@ public class FgisExcelWriter {
                 sheet.autoSizeColumn(i);
             }
             wb.write(out);
-            excelResult = "Создан файл \"" + fileNameFormat + ".xls\"";
+            excelResult = "Создан файл \"" + fileNameFormat + ".xlsx\"";
 
         } catch (IOException e) {
             log.error("Ошибка при создании файла Excel");

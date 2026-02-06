@@ -2,6 +2,7 @@ package com.example.springApp.service.FGIS;
 
 import com.example.springApp.model.IPU;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -18,13 +19,14 @@ import java.io.File;
 import java.util.List;
 
 @Slf4j
+@Component
 public class FgisXmlWriter {
 
     public String xmlResult;
 
-    public void toArchWriter(List<IPU> waterMeterList, String filePath, String savePath) {
+    public void write(List<IPU> waterMeterList, String filePath, String savePath) {
 
-        String fileName = filePath.substring(0, filePath.lastIndexOf('.')); //убираем расширение из названия
+        String fileName = filePath.substring(0, filePath.lastIndexOf('.')).trim(); //убираем расширение из названия
 
         File dir = new File(savePath);
         if (!dir.exists()) {
@@ -79,7 +81,6 @@ public class FgisXmlWriter {
                 means.appendChild(mieta);
 
                 createElement(doc, "ns1:number", ipu.getEquipment().getNumberUpsz(), mieta);
-                ;
 
                 Element mis = doc.createElement("ns1:mis");
                 means.appendChild(mis);

@@ -3,23 +3,27 @@ package com.example.springApp.service.FSA;
 import com.example.springApp.model.RegistredMeter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
+@Component
 public class MergeFiles {
-    private final List<RegistredMeter> comFile;
-    private final List<RegistredMeter> ffFile;
 
-    private final StringBuilder erMessage = new StringBuilder("\n");
+    private StringBuilder erMessage;
     private boolean hasError;
 
-    public String merge() {
+    public void merge(List<RegistredMeter> comFile, List<RegistredMeter> ffFile) {
+        erMessage = new StringBuilder("\n");
+        hasError = false;
 
         if (comFile.size() != ffFile.size()) {
             hasError = true;
-            erMessage.append("Размеры файлов не равны \n");
+            erMessage.append("Размеры файлов не равны \n")
+                    .append("Файл из Аршина - ").append(ffFile.size()).append("\n")
+                    .append("Файл за месяц - ").append(comFile.size()).append("\n");
         }
 
         comFile.forEach(registredMeter -> {
@@ -50,12 +54,12 @@ public class MergeFiles {
                 }
             }
         });
-        
-       if (!hasError) {
-           erMessage.append("Сформирован общий файл");
-       }
 
-       return erMessage.toString();
+        if (hasError) {
+            log.error(erMessage.toString());
+            throw new RuntimeException(erMessage.toString());
+        }
+        log.info("Сформирован общий файл");
     }
 
     private void printErrorMessage(String number, String message) {

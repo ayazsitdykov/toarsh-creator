@@ -8,6 +8,7 @@ import org.jdom2.Namespace;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,17 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@Component
 public class FsaXmlWriter {
 
     private static final int MAX_ELEMENTS_PER_FILE = 1000;
-    private final List<RegistredMeter> registeredMeters;
     public String resultMessage;
 
-    public FsaXmlWriter(List<RegistredMeter> registeredMeters) {
-        this.registeredMeters = registeredMeters;
-    }
-
-    public void create(String filePath, String fileName) {
+    public void create(List<RegistredMeter> registeredMeters,
+                       String filePath, String fileName) {
 
         File dir = new File(filePath);
         if (!dir.exists()) {

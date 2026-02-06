@@ -23,23 +23,12 @@ public abstract class ExcelExtractor {
     }
 
     protected LocalDate getDateCell(Cell cell) {
-        LocalDate localDate;
-
-        if (cell.getCellType().name().equals("STRING")) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-            localDate = LocalDate.parse(cell.getStringCellValue(), formatter);
-
-        }
-
-        if (cell.getCellType().name().equals("NUMERIC")) {
-            localDate = cell.getDateCellValue().toInstant()
+        return switch (cell.getCellType()) {
+            case STRING -> LocalDate.parse(cell.getStringCellValue(), DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            case NUMERIC -> cell.getDateCellValue().toInstant()
                     .atZone(ZoneId.systemDefault()).toLocalDate();
-
-        } else {
-            localDate = LocalDate.of(1970, 1, 1);
-        }
-
-        return localDate;
+            default -> LocalDate.of(1970, 1, 1);
+        };
     }
 
     protected String getCellValueAsString(Cell cell) {

@@ -1,12 +1,17 @@
 package com.example.springApp.gui;
 
 import com.example.springApp.model.IPU;
+import com.example.springApp.model.RegistredMeter;
 import com.example.springApp.parser.ExcelParser;
 import com.example.springApp.service.FGIS.ErrorAndMethodicChecking;
 import com.example.springApp.service.FGIS.FgisExcelWriter;
 import com.example.springApp.service.FGIS.FgisXmlWriter;
 import com.example.springApp.service.FGIS.MetrologyFileExtractor;
 import com.example.springApp.service.FGIS.ParamCreator;
+import com.example.springApp.service.FSA.CompletedFileExtractor;
+import com.example.springApp.service.FSA.FgisFileExtractor;
+import com.example.springApp.service.FSA.FsaXmlWriter;
+import com.example.springApp.service.FSA.MergeFiles;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +30,8 @@ import java.util.concurrent.ExecutionException;
 public class MainFrame extends JFrame {
 
     @Autowired
+    private ExcelParser excelParser;
+    @Autowired
     private MetrologyFileExtractor metrologyFileExtractor;
     @Autowired
     private ErrorAndMethodicChecking errorAndMethodicChecking;
@@ -36,10 +43,25 @@ public class MainFrame extends JFrame {
     private InitFgisUI fgisUI;
     @Autowired
     private InitFsaUI fsaUI;
+    @Autowired
+    private FgisXmlWriter fgisXmlWriter;
+    @Autowired
+    private FgisExcelWriter fgisExcelWriter;
+    @Autowired
+    private CompletedFileExtractor completedFileExtractor;
+    @Autowired
+    private FgisFileExtractor fgisFileExtractor;
+    @Autowired
+    private FsaXmlWriter fsaXmlWriter;
+    @Autowired
+    private MergeFiles mergeFiles;
+
+    private List<RegistredMeter> registredMetersCF;
+    private List<RegistredMeter> registredMetersFF;
 
     private File selectedFileToFgis;
     private File selectedFileFromFgis1;
-    private File selectedFileFromFgis2;
+    private File addFileFromFgis;
     private File selectedCompiledFile;
 
     private String saveToFgisPath;
@@ -53,7 +75,6 @@ public class MainFrame extends JFrame {
         ImageIcon icon = new ImageIcon(Objects.requireNonNull
                 (MainFrame.class.getResource("/Images/kbs.png")));
         setIconImage(icon.getImage());
-
         setLocationRelativeTo(null);
     }
 
@@ -69,7 +90,7 @@ public class MainFrame extends JFrame {
 
         fsaUI.getSelectCompiledFileButton().addActionListener(this::selectCompiledFile);
         fsaUI.getSelectFromFgisFileButton1().addActionListener(this::selectFileFromFgis1);
-        fsaUI.getSelectFromFgisFileButton2().addActionListener(this::selectFileFromFgis2);
+        fsaUI.getAddFromFgisFileButton().addActionListener(this::addFileFromFgis);
         fsaUI.getSaveButtonFsa().addActionListener(this::selectSaveLocationToFsa);
         fsaUI.getToFsaButton().addActionListener(this::toFsaAction);
         mainPanel.add(fsaUI.getToFsaPanel(), BorderLayout.EAST);
@@ -96,6 +117,10 @@ public class MainFrame extends JFrame {
         if (selectedFileFromFgis1 != null) {
             fsaUI.getToFsaButton().setEnabled(true);
         }
+
+        registredMetersCF = completedFileExtractor
+                .transfer(excelParser.parse(selectedCompiledFile.getAbsolutePath()).get(0));
+
     }
 
     private File getSelectedFile() {
@@ -103,7 +128,9 @@ public class MainFrame extends JFrame {
                 "Excel files (*.xls, *.xlsx)", "xls", "xlsx"));
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            return fileChooser.getSelectedFile();
+            File selectedFile = fileChooser.getSelectedFile();
+            logMessage("Выбран файл: " + selectedFile.getName());
+            return selectedFile;
         }
         return null;
     }
@@ -112,7 +139,7 @@ public class MainFrame extends JFrame {
         if (selectedFile == null) {
             return "";
         }
-        String savePath = selectedFile.getParent() + "\\" + actionName + "\\" + getFormattedCurrentTime();
+        String savePath = selectedFile.getParent() + "\\" + actionName + "." + getFormattedCurrentTime();
         logMessage("Результат сохранится в: " + savePath);
         return savePath;
     }
@@ -124,8 +151,10 @@ public class MainFrame extends JFrame {
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             selectedFileFromFgis1 = fileChooser.getSelectedFile();
+            registredMetersFF = fgisFileExtractor
+                    .transfer(excelParser.parse(selectedFileFromFgis1.getAbsolutePath()).get(0));
             logMessage("Выбран 1 файл: " + selectedFileFromFgis1.getName());
-            fsaUI.getSelectFromFgisFileButton2().setEnabled(true); //активируем кнопку выбора 2 файла
+            fsaUI.getAddFromFgisFileButton().setEnabled(true); //активируем кнопку выбора 2 файла
 
             if (selectedCompiledFile != null) {
                 fsaUI.getToFsaButton().setEnabled(true);
@@ -133,14 +162,17 @@ public class MainFrame extends JFrame {
         }
     }
 
-    private void selectFileFromFgis2(ActionEvent e) {
+    private void addFileFromFgis(ActionEvent e) {
 
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
                 "Excel files (*.xls, *.xlsx)", "xls", "xlsx"));
 
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            selectedFileFromFgis2 = fileChooser.getSelectedFile();
-            logMessage("Выбран 2 файл: " + selectedFileFromFgis2.getName());
+            addFileFromFgis = fileChooser.getSelectedFile();
+
+            registredMetersFF.addAll(fgisFileExtractor
+                    .transfer(excelParser.parse(addFileFromFgis.getAbsolutePath()).get(0)));
+            logMessage("Добавлен файл: " + addFileFromFgis.getName());
         }
     }
 
@@ -178,7 +210,7 @@ public class MainFrame extends JFrame {
 
         fgisUI.getProgressBar().setVisible(true);
         fgisUI.getProgressBar().setIndeterminate(true);
-        logMessage("Обработка...");
+        logMessage("\n" + "Обработка...");
 
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             @Override
@@ -187,25 +219,27 @@ public class MainFrame extends JFrame {
                 String filePath = selectedFileToFgis.getAbsolutePath();
                 String fileName = filePath.substring(filePath.lastIndexOf('\\') + 1);
 
-                List<IPU> waterMeterList = metrologyFileExtractor.transfer(new ExcelParser().parse(filePath).get(0));
+                List<IPU> waterMeterList = metrologyFileExtractor.transfer(excelParser.parse(filePath).get(0));
 
+                if (waterMeterList == null) {
+                    logMessage("Файл пуст");
+                }
                 if (waterMeterList != null) {
                     publish("Проверка ошибок...");
 
                     String errorCheck = errorAndMethodicChecking.check(waterMeterList).toString();
-
                     logMessage(errorCheck);
+                    Thread.sleep(200);
+
                     paramCreator.create(waterMeterList);
 
                     logMessage("Прочитан файл, содержащий " + waterMeterList.size() + " счетчиков");
 
                     publish("Запись файлов...");
-                    FgisXmlWriter xmlWriter = new FgisXmlWriter();
-                    xmlWriter.toArchWriter(waterMeterList, fileName, saveToFgisPath);
-                    logMessage(xmlWriter.xmlResult);
-                    FgisExcelWriter excelWriter = new FgisExcelWriter();
-                    excelWriter.exelCreator(waterMeterList, fileName, saveToFgisPath);
-                    logMessage(excelWriter.excelResult);
+                    fgisXmlWriter.write(waterMeterList, fileName, saveToFgisPath);
+                    logMessage(fgisXmlWriter.xmlResult);
+                    fgisExcelWriter.exelCreator(waterMeterList, fileName, saveToFgisPath);
+                    logMessage(fgisExcelWriter.excelResult);
 
                 }
 
@@ -245,40 +279,21 @@ public class MainFrame extends JFrame {
 
         SwingWorker<Void, String> worker = new SwingWorker<>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected Void doInBackground() {
                 publish("Чтение файла...");
-                String filePathCF = selectedCompiledFile.getAbsolutePath(); // Путь к итоговому файлу за месяц
-                String filePathFF1 = selectedFileFromFgis1.getAbsolutePath(); // Путь к 1 файлу из Аршина
 
+                mergeFiles.merge(registredMetersCF, registredMetersFF);
 
-                //  List<RegistredMeter> registredMetersCF = new CompletedFileExtractor().transfer(filePathCF);
-                // Парсинг итогового файла
-                //  List<RegistredMeter> registredMetersFF = new FgisFileExtractor().parser(filePathFF1);
-                // Парсинг 1 файла из Аршина(1-1000)
+                logMessage("Отчет за месяц содержит " + registredMetersCF.size() + " счетчиков");
+                logMessage("Выгрузка из Аршина содержит " + registredMetersFF.size() + " счетчиков");
 
-                if (selectedFileFromFgis2 != null) {
-                    String filePathFF2 = selectedFileFromFgis2.getAbsolutePath(); // Путь к 2 файлу из Аршина
-                    // registredMetersFF.addAll(new FgisFileExtractor().parser(filePathFF2));
-                    //Парсинг 2 файла из Аршина (1001-2000)
-                }
+                String dateMonth = registredMetersCF.get(0).getDateVerification().getMonth().name().toLowerCase();
+                int dateYear = registredMetersCF.get(0).getDateVerification().getYear();
 
-//                MergeFiles mergeFiles = new MergeFiles(registredMetersCF, registredMetersFF);
-//                mergeFiles.merge();
-//                //Слияние файлов в registredMetersCF
-//                logMessage("Отчет за месяц содержит " + registredMetersCF.size() + " счетчиков");
-//                logMessage("Выгрузка из Аршина содержит " + registredMetersFF.size() + " счетчиков");
-//               // logMessage(mergeFiles.erMessage);
-//                FsaXmlWriter fsaXmlWriter = new FsaXmlWriter(registredMetersCF);
-////                if (!mergeFiles.hasError) {
-//
-//                    String dateMonth = registredMetersCF.get(0).getDateVerification().getMonth().name().toLowerCase();
-//                    int dateYear = registredMetersCF.get(0).getDateVerification().getYear();
-//
-//                    String fileNameFsa = dateMonth + "_" + dateYear + "_FSA";
-//
-//                    fsaXmlWriter.create(saveToFsaPath, fileNameFsa);
-//                    logMessage(fsaXmlWriter.resultMessage);
-//                }
+                String fileNameFsa = dateMonth + "_" + dateYear + "_FSA";
+
+                fsaXmlWriter.create(registredMetersCF, saveToFsaPath, fileNameFsa);
+                logMessage(fsaXmlWriter.resultMessage);
 
 
                 return null;
@@ -313,7 +328,8 @@ public class MainFrame extends JFrame {
     private void logMessage(String message) {
         SwingUtilities.invokeLater(() -> {
             // logArea.setForeground(Color.black);
-            fgisUI.getLogArea().append("[" + java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + "] " + message + "\n");
+            fgisUI.getLogArea().append("[" + java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                    + "] " + message + "\n");
             // Auto-scroll to bottom
             fgisUI.getLogArea().setCaretPosition(fgisUI.getLogArea().getDocument().getLength());
         });
@@ -322,5 +338,4 @@ public class MainFrame extends JFrame {
     private String getFormattedCurrentTime() {
         return LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + "\\";
     }
-
 }

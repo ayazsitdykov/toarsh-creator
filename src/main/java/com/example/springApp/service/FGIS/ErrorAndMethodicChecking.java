@@ -4,7 +4,6 @@ import com.example.springApp.model.Equipment;
 import com.example.springApp.model.IPU;
 import com.example.springApp.model.MeterDescription;
 import com.example.springApp.model.MpModel;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,13 +28,10 @@ public class ErrorAndMethodicChecking {
     private StringBuilder logOut;
     private boolean hasError;
 
-    @PostConstruct
-    public void init() {
-        this.logOut = new StringBuilder("\n");
-        this.hasError = false;
-    }
-
     public StringBuilder check(List<IPU> waterMeterList) {
+
+        hasError = false;
+        logOut = new StringBuilder("\n");
 
         waterMeterList.forEach((ipu) -> {
             String manufactureNumber = ipu.getManufactureNum();
@@ -48,7 +46,7 @@ public class ErrorAndMethodicChecking {
                     .findFirst().orElse(null);
 
             if (equipment == null) {
-                printFaultMessage(manufactureNumber, "Поверитель не найден");
+                printFaultMessage(manufactureNumber, "Указанный поверитель не числится в списке сотрудников");
             }
 
             if (meterDescription == null) {
@@ -64,54 +62,37 @@ public class ErrorAndMethodicChecking {
 
             if (!meterDescription.types().contains(ipu.getModification())) {
                 printFaultMessage(manufactureNumber,
-                        String.format("Неправильный тип счетчика. Возможные типы: %s \n",
+                        String.format("Неправильный тип счетчика. Возможные типы: %s",
                                 meterDescription.types()));
             }
 
             Object mpiValues = meterDescription.mpi();
 
-            if (mpiValues instanceof Map) {
+            if (mpiValues instanceof Map<?, ?> rawMap) {
+                // Определяем тип по первому значению
+                boolean isListType = rawMap.values().stream()
+                        .findFirst()
+                        .map(val -> val instanceof List<?>)
+                        .orElse(false);
 
-                if (((Map<?, ?>) mpiValues).values() instanceof List) {
-                    if (ipu.isHot()) {
-                        @SuppressWarnings("unchecked")
-                        Optional<List<Integer>> gvsMpiList = (Optional<List<Integer>>) ((Map<?, ?>) mpiValues)
-                                .get("ГВС");
-                        checkUsingResource(true, gvsMpiList.isEmpty(), manufactureNumber);
+                String key = ipu.isHot() ? "ГВС" : "ХВС";
+                boolean isHot = ipu.isHot();
 
-                        mpi.addAll(gvsMpiList.orElseGet((ArrayList::new)));
-                    } else {
-                        @SuppressWarnings("unchecked")
-                        Optional<List<Integer>> hvsMpiList = (Optional<List<Integer>>) ((Map<?, ?>) mpiValues)
-                                .get("ХВС");
-                        checkUsingResource(false, hvsMpiList.isEmpty(), manufactureNumber);
+                Object value = rawMap.get(key);
 
-                        mpi.addAll(hvsMpiList.orElseGet((ArrayList::new)));
-                    }
-
+                if (isListType) {
+                    // Обработка списка
+                    Optional<List<Integer>> list = safelyExtractIntegerList(value);
+                    checkUsingResource(isHot, list.isEmpty(), manufactureNumber);
+                    mpi.addAll(list.orElseGet(ArrayList::new));
                 } else {
-                    if (ipu.isHot()) {
-                        @SuppressWarnings("unchecked")
-                        Optional<Integer> gvsMpi = ((Map<String, Integer>) mpiValues)
-                                .get("ГВС").describeConstable();
-                        checkUsingResource(true, gvsMpi.isEmpty(), manufactureNumber);
-
-                        mpi.add(gvsMpi.orElseGet(() -> 0));
-                    } else {
-                        @SuppressWarnings("unchecked")
-                        Optional<Integer> hvsMpi = ((Map<String, Integer>) mpiValues)
-                                .get("ХВС").describeConstable();
-                        checkUsingResource(false, hvsMpi.isEmpty(), manufactureNumber);
-
-                        mpi.add(hvsMpi.orElseGet(() -> 0));
-                    }
+                    // Обработка одиночного значения
+                    Optional<Integer> number = safelyExtractInteger(value);
+                    checkUsingResource(isHot, number.isEmpty(), manufactureNumber);
+                    mpi.add(number.orElse(0));
                 }
-            }
-
-            if (mpiValues instanceof Integer) {
-
-                Integer mpiValue = (Integer) meterDescription.mpi();
-                mpi.add(mpiValue);
+            } else if (mpiValues instanceof Integer intValue) {
+                mpi.add(intValue);
             }
 
             if (mpi.isEmpty()) {
@@ -150,11 +131,10 @@ public class ErrorAndMethodicChecking {
         });
 
         if (!hasError) {
-            logOut.append("Файл прочитан - ошибок не обнаружено");
+            logOut.append("Ошибок не обнаружено");
         }
 
         if (hasError) {
-            log.error(logOut.toString());
             throw new RuntimeException(logOut.toString());
         }
 
@@ -175,5 +155,49 @@ public class ErrorAndMethodicChecking {
             String message = isHot ? "Не используется для ГВС" : "Не используется для ХВС";
             printFaultMessage(manufactureNum, message);
         }
+    }
+
+    private Optional<List<Integer>> safelyExtractIntegerList(Object value) {
+        // Проверяем Optional
+        if (value instanceof Optional<?> optional && optional.isPresent()) {
+            value = optional.get();
+        }
+
+        // Проверяем List
+        if (value instanceof List<?> list) {
+            try {
+                List<Integer> result = list.stream()
+                        .map(this::toInteger)  // Конвертируем каждый элемент
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
+                return Optional.of(result);
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private Integer toInteger(Object obj) {
+        if (obj instanceof Integer) return (Integer) obj;
+        if (obj instanceof Number) return ((Number) obj).intValue();
+        if (obj instanceof String) {
+            try {
+                return Integer.parseInt((String) obj);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private Optional<Integer> safelyExtractInteger(Object value) {
+        if (value == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of((Integer) value);
     }
 }

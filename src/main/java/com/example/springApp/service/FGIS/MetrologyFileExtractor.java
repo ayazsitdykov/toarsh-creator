@@ -27,8 +27,6 @@ public class MetrologyFileExtractor extends ExcelExtractor {
             + " - " + (new Random().nextInt(5) + 10);
     private String metrologyMemory = "Ситдыков Р. Н.";
 
-    public String parsingResult = "";
-
     public List<IPU> transfer(Sheet sheet) {
 
         List<IPU> waterMeterList = new LinkedList<>();
@@ -38,8 +36,8 @@ public class MetrologyFileExtractor extends ExcelExtractor {
                 if (isFileCorrect(row)) {
                     continue;
                 }
-                parsingResult = "Выбран некорректный файл excel";
-                return null;
+                log.error("Выбран некорректный файл excel");
+                throw new RuntimeException("Выбран некорректный файл excel");
             }
 
             if (row.getCell(0) == null
@@ -60,9 +58,11 @@ public class MetrologyFileExtractor extends ExcelExtractor {
             waterMeter.setEquipment((fillEquipment(getMetrologist(row.getCell(9)))));
 
             if (waterMeterList.stream().anyMatch(waterMeter::equals)) {
-                parsingResult = "Счетчик с номером " + waterMeter.getMitypeNumber() + " встречается повторно!";
-                return null; //возвращаем объект null, если счетчики повторяются
+                String errorMessage = "Счетчик с номером " + waterMeter.getManufactureNum() + " встречается повторно!";
+                log.error(errorMessage);
+                throw new RuntimeException(errorMessage);
             }
+
             waterMeterList.add(waterMeter);
         }
         return waterMeterList;
