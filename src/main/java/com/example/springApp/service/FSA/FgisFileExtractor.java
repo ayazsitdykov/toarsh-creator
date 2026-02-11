@@ -1,0 +1,43 @@
+package com.example.springApp.service.FSA;
+
+import com.example.springApp.model.RegistredMeter;
+import com.example.springApp.service.ExcelExtractor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Pattern;
+
+@Component
+@Slf4j
+public class FgisFileExtractor extends ExcelExtractor {
+
+    public List<RegistredMeter> transfer(Sheet sheet) {
+
+        List<RegistredMeter> registeredMeters = new ArrayList<>();
+
+        Iterator<Row> rowIterator = sheet.iterator();
+        Pattern pattern = Pattern.compile("[А-яа-яЁё]");
+
+        while (rowIterator.hasNext()) {
+            RegistredMeter registredMeter = new RegistredMeter();
+            Row row = rowIterator.next();
+
+            if (pattern.matcher(getCellValueAsString(row.getCell(0))).find()) {
+                continue;
+            }
+
+            registredMeter.setDateVerification(getDateCell(row.getCell(5)));
+            registredMeter.setManufactureNum(getCellValueAsString(row.getCell(6)));
+            registredMeter.setResultVerification("Да".equalsIgnoreCase(getCellValueAsString(row.getCell(9))) ? 1 : 0);
+            registredMeter.setNumberVerification(getCellValueAsString(row.getCell(10)).split("/")[2]);
+            registeredMeters.add(registredMeter);
+        }
+
+        return registeredMeters;
+    }
+}
