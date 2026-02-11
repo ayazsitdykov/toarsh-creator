@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,39 +59,33 @@ public class ErrorAndMethodicChecking {
                 return;
             }
 
+            ipu.setSignMi(meterDescription.signMi());
+            ipu.setSignPass(meterDescription.signPass());
+
             if (!meterDescription.types().contains(ipu.getModification())) {
                 printFaultMessage(manufactureNumber,
                         String.format("Неправильный тип счетчика. Возможные типы: %s",
                                 meterDescription.types()));
             }
 
-            Object mpiValues = meterDescription.mpi();
-
-            if (mpiValues instanceof Map<?, ?> rawMap) {
-                // Определяем тип по первому значению
-                boolean isListType = rawMap.values().stream()
-                        .findFirst()
-                        .map(val -> val instanceof List<?>)
-                        .orElse(false);
+            if (meterDescription.isMpiObject()) {
 
                 String key = ipu.isHot() ? "ГВС" : "ХВС";
                 boolean isHot = ipu.isHot();
 
-                Object value = rawMap.get(key);
+                Object value = meterDescription.getMpiAsMap().get(key);
 
-                if (isListType) {
-                    // Обработка списка
+                if (meterDescription.isListTypeMpiValue()) {
                     Optional<List<Integer>> list = safelyExtractIntegerList(value);
                     checkUsingResource(isHot, list.isEmpty(), manufactureNumber);
                     mpi.addAll(list.orElseGet(ArrayList::new));
                 } else {
-                    // Обработка одиночного значения
                     Optional<Integer> number = safelyExtractInteger(value);
                     checkUsingResource(isHot, number.isEmpty(), manufactureNumber);
                     mpi.add(number.orElse(0));
                 }
-            } else if (mpiValues instanceof Integer intValue) {
-                mpi.add(intValue);
+            } else if (meterDescription.isMpiInteger()) {
+                mpi.add(meterDescription.getMpiAsInteger());
             }
 
             if (mpi.isEmpty()) {

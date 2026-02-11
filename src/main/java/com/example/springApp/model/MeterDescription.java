@@ -21,6 +21,10 @@ public record MeterDescription(
         return mpi instanceof Map;
     }
 
+    public boolean isMpiInteger() {
+        return mpi instanceof Integer;
+    }
+
     @SuppressWarnings("unchecked")
     public Map<String, Object> getMpiAsMap() {
         return (Map<String, Object>) mpi;
@@ -28,5 +32,15 @@ public record MeterDescription(
 
     public Integer getMpiAsInteger() {
         return (Integer) mpi;
+    }
+
+    public boolean isListTypeMpiValue() {
+        if (isMpiObject()) {
+            return getMpiAsMap().values().stream()
+                    .findFirst()
+                    .map(val -> val instanceof List<?>)
+                    .orElse(false);
+        }
+        return false;
     }
 }
